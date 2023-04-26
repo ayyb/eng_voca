@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="font.css">
     <link rel="stylesheet" href="main.css">
     <title>Daily English Voca</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <div class="wrap">
@@ -22,12 +23,22 @@
                     매일매일 외우는 영어단어
                 </p>
                 <div class="btnBox">
-                    <button class="btn btn1 rbt-bd" type="button">Start as Guest</button>
-                    <button class="btn btn2 rbt-bd" type="button">Login</button>
-                    <button class="btn btn3 rbt-bd" type="button">Create user account</button>
+                    <button class="btn btn1 rbt-bd" type="button" id="main">Start as Guest</button>
+                    <button class="btn btn2 rbt-bd" type="button" id="login">Login</button>
+                    <!-- <button class="btn btn3 rbt-bd" type="button">Create user account</button> -->
                 </div>
             </div>
         </div>
     </div>
+    
+    <script>
+        //페이지 이동
+            $("#main").click(function(){
+                location.href="main.html";
+            })
+            $("#login").click(function(){
+                location.href="login.html";
+            })
+    </script>
 </body>
 </html>
