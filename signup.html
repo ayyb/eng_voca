@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Create user Account</h1>
+    <form id="myForm" method="post" action="/submit-form">
+        <input type="text" id="name" placeholder="name">
+        <input type="text" id="id" placeholder="id">
+        <input type="text" id="pw" placeholder="pw">
+        <input type="text" id="reconfirm" placeholder="reconfirm PW">
+        <button id="complete" type="submit">Create account</button>
+    </form>
+    <script>
+        $('#myForm').submit(function(event){
+            event.preventDefault();
+            alert('회원가입이 완료되었습니다.')
+        })
+    </script>
+</body>
+</html>
