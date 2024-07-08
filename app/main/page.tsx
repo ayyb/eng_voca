@@ -1,65 +1,93 @@
-'use client'
+"use client";
 // pages/index.js
-import Head from 'next/head';
-import React from 'react';
+import React from "react";
+import Button from "@/components/Button";
+import LikeBox from "@/components/LikeBox";
+import QuizBox from "@/components/QuizBox";
+import { HeartIcon, PencilIcon } from "@heroicons/react/24/solid";
 
 export default function Page() {
-    const handleStartClick = () =>{
-        //
-    }
+  const handleStartClick = () => {
+    //
+  };
 
-    const handleLikeBoxClick = () => {
-        //
-    }
+  const handleLikeBoxClick = () => {
+    //
+  };
 
-    function handleQuizBoxClick(){
-        //
-    }
+  function handleQuizBoxClick() {
+    //
+  }
   return (
     <>
-    <Head>
-      <meta charSet="UTF-8" />
-      <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Daily English Voca Main Page</title>
-    </Head>
-    <div className="p-4">
-      <h1 className="text-3xl font-bold">Hello, MyeongSeop!</h1>
-      <h2 className="text-xl mt-2">Your learning Progress 5/30</h2>
+      <div className="p-4 h-full">
+        <h1 className="text-3xl font-bold">Hello, MyeongSeop!</h1>
+        <h2 className="text-xl mt-2">Your learning Progress 5/30</h2>
+        {/* 프로그래스바 */}
+        <div className="w-full bg-gray-200 rounded-full h-6 my-4">
+          <div
+            className="bg-progress h-6 rounded-full"
+            // style={{ width: `${progress}%` }}
+          ></div>
+        </div>
 
-      <div className="bg-gray-200 p-4 my-4">
-        progress bar
-      </div>
+        <div className="flex space-x-4 w-full">
+          <div
+            className="like_box bg-white p-4 my-4 cursor-pointer rounded-lg flex-1"
+            onClick={handleLikeBoxClick}
+          >
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-lg font-bold">Likes</p>
+                <p className="text-gray-500 text-sm">33 words</p>
+              </div>
+              <p className="ml-auto">
+                <HeartIcon className="size-6 text-black-500" />
+              </p>
+            </div>
+          </div>
+          <div
+            className="quiz_box bg-white p-4 my-4 cursor-pointer rounded-lg text-black flex-1 "
+            onClick={handleQuizBoxClick}
+          >
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-lg font-bold">Quiz</p>
+                <p className="text-gray-500 text-sm">Latest 10/30</p>
+              </div>
+              <p className="ml-auto">
+                <PencilIcon className="size-6 text-black-500" />
+              </p>
+            </div>
+          </div>
+        </div>
 
-      <div className="like_box bg-blue-100 p-4 my-4 cursor-pointer" onClick={handleLikeBoxClick}>
-        <p>Likes</p>
-        <p>33 words</p>
-        <p>icon</p>
-      </div>
-      <div className="quiz_box bg-green-100 p-4 my-4 cursor-pointer" onClick={handleQuizBoxClick}>
-        <p>Quiz</p>
-        <p>Latest 10/30</p>
-        <p>icon</p>
-      </div>
+        <h2 className="text-xl mt-4">Today's Learning</h2>
+        <div className="bg-white p-10 my-4 rounded-xl">
+          <p className="text-3xl font-bold">Vocabulary</p>
+          <p className="text-sm mt-3">Today's random 30 words</p>
+          <button
+            className="bg-blue-200 text-white p-2 mt-2 rounded"
+            id="start"
+            onClick={handleStartClick}
+          >
+            Start
+          </button>
+        </div>
 
-      <h2 className="text-xl mt-4">Today's Learning</h2>
-      <div className="bg-gray-100 p-4 my-4">
-        <p>Vocabulary</p>
-        <p>Today's random 30 words</p>
-        <button className="bg-blue-500 text-white p-2 mt-2" id="start" onClick={handleStartClick}>Start</button>
-      </div>
-      
-      <h2 className="text-xl mt-4">Themes</h2>
-      <div className="bg-yellow-100 p-4 my-4">level1</div>
-      <div className="bg-yellow-200 p-4 my-4">level2</div>
-      <div className="bg-yellow-300 p-4 my-4">level3</div>
-      <div className="bg-yellow-400 p-4 my-4">level4</div>
+        <h2 className="text-xl mt-4">Levels</h2>
+        <div className="flex flex-wrap w-full space-y-4">
+          <div className="flex w-full space-x-4">
+            <div className="bg-yellow-100 p-4 flex-1 rounded-lg">Beginner</div>
+            <div className="bg-yellow-200 p-4 flex-1 rounded-lg">Intermediate</div>
+          </div>
+          <div className="flex w-full space-x-4">
+            <div className="bg-yellow-300 p-4 flex-1 rounded-lg">Advanced</div>
+            <div className="bg-yellow-400 p-4 flex-1 rounded-lg">Expert</div>
+          </div>
+        </div>
 
-      <button className="bg-blue-500 text-white p-2 mt-2">More</button>
-      <nav className="bg-gray-800 text-white p-4 mt-4">
-        하단 네비게이션 바
-      </nav>
-    </div>
-  </>
+      </div>
+    </>
   );
-};
+}
