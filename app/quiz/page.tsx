@@ -3,7 +3,7 @@ export default function QuizPage() {
     <>
       <div className="p-4 w-full h-full">
         <div className="mb-5">
-          <p className="text-4xl font-bold">Quiz</p>
+          <p className="text-4xl font-bold text-white">Quiz</p>
         </div>
         <p className="text-xl mt-4">Select a range</p>
         <div className="flex flex-col space-y-4 mt-5 mb-10 w-full">

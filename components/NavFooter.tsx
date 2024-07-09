@@ -6,11 +6,11 @@ export default function NavFooter() {
     <>
       <div className="bg-gray-800 text-white w-full py-4 fixed bottom-0 max-w-md">
         <div className="flex justify-around">
-          <Link href="/main/likes"><HandThumbUpIcon className="size-6 text-black-500"/></Link>
-          <Link href="/main/quiz"><PuzzlePieceIcon className="size-6 text-black-500"/></Link>
-          <Link href="/main"><HomeIcon className="size-6 text-black-500"/></Link>
-          <Link href="/main/levels"><SparklesIcon className="size-6 text-black-500"/></Link>
-          <Link href="/main/member"><UserIcon className="size-6 text-black-500"/></Link>
+          <Link href="/likes"><HandThumbUpIcon className="size-6 text-black-500"/></Link>
+          <Link href="/quiz"><PuzzlePieceIcon className="size-6 text-black-500"/></Link>
+          <Link href="/home"><HomeIcon className="size-6 text-black-500"/></Link>
+          <Link href="/levels"><SparklesIcon className="size-6 text-black-500"/></Link>
+          <Link href="/member"><UserIcon className="size-6 text-black-500"/></Link>
         </div>
       </div>
     </>

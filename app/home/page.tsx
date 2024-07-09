@@ -21,8 +21,8 @@ export default function Page() {
   return (
     <>
       <div className="p-4 h-full">
-        <h1 className="text-3xl font-bold">Hello, MyeongSeop!</h1>
-        <h2 className="text-xl mt-2">Your learning Progress 5/30</h2>
+        <p className="text-3xl font-bold text-white w-full">Hello, MyeongSeop!</p>
+        <h2 className="text mt-2">Your learning Progress 5/30</h2>
         {/* 프로그래스바 */}
         <div className="w-full bg-gray-200 rounded-full h-6 my-4">
           <div
@@ -62,7 +62,7 @@ export default function Page() {
           </div>
         </div>
 
-        <h2 className="text-xl mt-4">Today's Learning</h2>
+        <h2 className="text-3xl font-bold mt-4 text-white">Today's Learning</h2>
         <div className="bg-white p-10 my-4 rounded-xl">
           <p className="text-3xl font-bold">Vocabulary</p>
           <p className="text-sm mt-3">Today's random 30 words</p>
@@ -75,7 +75,7 @@ export default function Page() {
           </button>
         </div>
 
-        <h2 className="text-xl mt-4">Levels</h2>
+        <h2 className="mt-4 text-3xl font-bold text-white mb-4">Levels</h2>
         <div className="flex flex-wrap w-full space-y-4">
           <div className="flex w-full space-x-4">
             <div className="bg-yellow-100 p-4 flex-1 rounded-lg">Beginner</div>

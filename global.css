@@ -2,3 +2,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.bg-custom {
+    background-image: url('/images/example.webp');
+    background-size: cover;
+    background-position: center;
+  }
