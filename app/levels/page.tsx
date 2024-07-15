@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 export default function page() {
@@ -8,27 +9,35 @@ export default function page() {
           <h1 className="text-4xl font-bold text-white">Levels</h1>
         </div>
         <div className="flex flex-col space-y-4 mt-5 mb-10 w-full">
-          <div className="bg-red-200 rounded-lg box-border border-1 border-red-300 h-32">
-            <div className="p-3">
-              <p className="text-xl">Beginner</p>
-              <p className="text-sm">30 words</p>
+          <Link href="/home/vocabulary/1">
+            <div className="bg-red-200 rounded-lg box-border border-1 border-red-300 h-32">
+              <div className="p-3">
+                <p className="text-xl">Beginner</p>
+                <p className="text-sm">30 words</p>
+              </div>
             </div>
-          </div>
+          </Link>
+          <Link href="/home/vocabulary/2">
           <div className="bg-yellow-200 rounded-lg box-border border-1 border-yellow-300 h-32">
             <div className="p-3">
               <p className="text-xl">Intermediate</p>
             </div>
           </div>
+          </Link>
+          <Link href="/home/vocabulary/3">
           <div className="bg-green-200 rounded-lg box-border border-1 border-green-300 h-32">
             <div className="p-3">
               <p className="text-xl">Advanced</p>
             </div>
           </div>
+          </Link>
+          <Link href="/home/vocabulary/4">
           <div className="bg-blue-200 rounded-lg box-border border-1 border-blue-300 h-32">
             <div className="p-3">
               <p className="text-xl">Expert</p>
             </div>
           </div>
+          </Link>
         </div>
       </div>
     </>

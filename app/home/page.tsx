@@ -1,24 +1,22 @@
-"use client";
 // pages/index.js
 import React from "react";
-import Button from "@/components/Button";
-import LikeBox from "@/components/LikeBox";
-import QuizBox from "@/components/QuizBox";
 import { HeartIcon, PencilIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
+import { fetchMember } from '@/app/api/route';
 
-export default function Page() {
-  const handleStartClick = () => {
-    //
-  };
+interface Member {
+  no: number;
+  id: string;
+  pw: string;
+  name: string;
+  created_at: string;
+  member_level: number | null;
+}
 
-  const handleLikeBoxClick = () => {
-    //
-  };
+export default async function Page() {
+  const member  = await fetchMember();
+  console.log("response",member);
 
-  function handleQuizBoxClick() {
-    //
-  }
   const score = 5
   const total = 30
   const progress = score / total * 100;
@@ -26,7 +24,7 @@ export default function Page() {
     <>
       <div className="p-4 h-full">
         <p className="text-3xl font-bold text-white w-full">
-          Hello, MyeongSeop!
+          Hello, {member.name ?? 'Guest'}!
         </p>
         <h2 className="text mt-2">Your learning Progress {`${score} / ${total}`}</h2>
         {/* 프로그래스바 */}
@@ -74,7 +72,7 @@ export default function Page() {
         <div className="bg-white p-10 my-4 rounded-xl">
           <p className="text-3xl font-bold">Vocabulary</p>
           <p className="text-sm mt-3">Today's random 30 words</p>
-          <Link href="/home/vocabulary">
+          <Link href="/home/vocabulary/9">
             <button
               className="bg-blue-200 text-white p-2 mt-2 rounded"
               id="start"
@@ -87,14 +85,20 @@ export default function Page() {
         <h2 className="mt-4 text-3xl font-bold text-white mb-4">Levels</h2>
         <div className="flex flex-wrap w-full space-y-4 h-1/4">
           <div className="flex w-full space-x-4 ">
-            <div className="bg-red-100 p-4 flex-1 rounded-lg">Beginner</div>
-            <div className="bg-yellow-200 p-4 flex-1 rounded-lg">
-              Intermediate
-            </div>
+            <Link href="/home/vocabulary/1" className="bg-red-100 p-4 flex-1 rounded-lg">
+            Beginner
+            </Link>
+            <Link href="/home/vocabulary/2" className="bg-yellow-100 p-4 flex-1 rounded-lg">
+            Intermediate
+            </Link>
           </div>
           <div className="flex w-full space-x-4">
-            <div className="bg-green-300 p-4 flex-1 rounded-lg">Advanced</div>
-            <div className="bg-blue-400 p-4 flex-1 rounded-lg">Expert</div>
+          <Link href="/home/vocabulary/3" className="bg-blue-100 p-4 flex-1 rounded-lg">
+          Advanced
+            </Link>
+            <Link href="/home/vocabulary/4" className="bg-green-100 p-4 flex-1 rounded-lg">
+            Expert
+            </Link>
           </div>
         </div>
       </div>

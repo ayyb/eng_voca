@@ -1,6 +1,18 @@
-import { HeartIcon, EyeIcon,SpeakerWaveIcon } from "@heroicons/react/24/solid";
+import { useState, useEffect } from "react";
+import { EyeIcon,SpeakerWaveIcon } from "@heroicons/react/24/solid";
 import { HeartIcon as EmptyHeart } from "@heroicons/react/24/outline";
+import { fetchLevelWords } from "@/app/api/route";
+import { QueryResultRow } from "@vercel/postgres";
 
+interface Word {
+  word: string;
+  definition: string;
+  example: string;
+  pronunce: string;
+  word_level: number;
+  part_of_speech?: string; // Add if part_of_speech is part of the data
+  translation?: string; // Add if translation is part of the data
+}
 
 export default function VocabularyPage() {
   return (

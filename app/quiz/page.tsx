@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function QuizPage() {
   return (
     <>
@@ -58,9 +60,14 @@ export default function QuizPage() {
         </div>
 
         <div className="">
-            <button className="bg-gray-400 text-white p-3 mt-2 rounded w-full " id="start">
-                Start
+          <Link href="/quiz/problem">
+            <button
+              className="bg-gray-400 text-white p-3 mt-2 rounded w-full "
+              id="start"
+            >
+              Start
             </button>
+          </Link>
         </div>
       </div>
     </>

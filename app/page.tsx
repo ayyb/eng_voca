@@ -4,7 +4,7 @@ import "../public/font.css";
 import "../public/main.css";
 import Link from "next/link";
 
-const HomePage = () => {
+const HomePage = async () => {
   return (
     <>
       <div className="p-3w-full h-full">
