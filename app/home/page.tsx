@@ -2,7 +2,7 @@
 import React from "react";
 import { HeartIcon, PencilIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
-import { fetchMember } from '@/app/api/route';
+import { fetchMember } from '@/app/api/actions';
 
 interface Member {
   no: number;

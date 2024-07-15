@@ -1,5 +1,5 @@
 // app/vocabulary/[level]/page.tsx
-import { fetchLevelWords } from '@/app/api/route';
+import { fetchLevelWords } from '@/app/api/actions';
 import VocabularyPage from '@/components/VocabularyPage';
 import { Word } from '@/app/lib/types';
 

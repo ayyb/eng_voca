@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import { createMember } from "@/app/api/route";
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({

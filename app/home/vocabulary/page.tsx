@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { EyeIcon,SpeakerWaveIcon } from "@heroicons/react/24/solid";
 import { HeartIcon as EmptyHeart } from "@heroicons/react/24/outline";
-import { fetchLevelWords } from "@/app/api/route";
+import { fetchLevelWords } from "@/app/api/actions";
 import { QueryResultRow } from "@vercel/postgres";
 
 interface Word {
