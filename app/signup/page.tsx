@@ -9,7 +9,7 @@ export default function SignUpPage() {
   const initialState = {
     message: "",
   };
-  const [state, formAction] = useActionState (createMember, initialState);
+  const [state, formAction] = useActionState(createMember, initialState);
 
   const [formData, setFormData] = useState<Member>({
     id: "",
@@ -131,6 +131,11 @@ export default function SignUpPage() {
             >
               Sign up
             </button>
+            {state && (
+              <div className="toast">
+                {state.message }
+              </div>
+            )}
           </div>
         </form>
       </div>

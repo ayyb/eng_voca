@@ -1,6 +1,8 @@
+'use server';
 import { QueryResultRow, sql } from "@vercel/postgres";
 import { Word } from "@/app/lib/types";
 import { z } from "zod";
+import { revalidatePath } from 'next/cache';
 
 export async function createMember(
   
@@ -27,6 +29,8 @@ export async function createMember(
       INSERT INTO members (id, pw, name, created_at, member_level)
       VALUES (${data.id}, ${data.pw}, ${data.name}, CURRENT_DATE, 1);
     `;
+     // 페이지를 다시 검증하여 최신 데이터로 갱신
+    revalidatePath('/home');
     console.log('등록됨?')
     return { message: `Added to new Member` };
   } catch (error) {
