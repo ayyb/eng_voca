@@ -24,7 +24,7 @@ const HomePage = async () => {
                 <Link href="/home">Start as Guest</Link>
               </button>
               <button className="bg-customBlue text-white font-bold rounded-lg text-2xl p-2" type="button">
-                <Link href="/signin">Login</Link>
+                <Link href="/login">Login</Link>
               </button>
             </div>
           </div>

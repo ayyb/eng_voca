@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 export default function SignInPage() {
-  const handleInput = (value) => {
+  const handleInput = (value : string) => {
     console.log(value);
   };
   return (

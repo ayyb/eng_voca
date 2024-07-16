@@ -1,19 +1,36 @@
-import { sql } from "@vercel/postgres";
-import { NextRequest, NextResponse } from "next/server";
+import { QueryResultRow, sql } from "@vercel/postgres";
 import { Word } from "@/app/lib/types";
+import { z } from "zod";
 
-export async function createMember(request) {
+export async function createMember(
+  
+  prevState: {
+    message: string;
+  },
+  formData: FormData
+) {
+  console.log('작동함?')
+  console.log(formData.get("id"))
   try {
-    const { id, pw, name } = request;
-
-    const result = await sql`
+    const schema = z.object({
+      id: z.string().min(1),
+      pw: z.string().min(1),
+      name: z.string().min(1),
+    });
+    const data = schema.parse({
+      id: formData.get("id"),
+      pw: formData.get("pw"),
+      name: formData.get("name"),
+    });
+    console.log("데이터 받음",data)
+    await sql`
       INSERT INTO members (id, pw, name, created_at, member_level)
-      VALUES (${id}, ${pw}, ${name}, CURRENT_DATE, 1);
+      VALUES (${data.id}, ${data.pw}, ${data.name}, CURRENT_DATE, 1);
     `;
-
-    return NextResponse.json({ result }, { status: 200 });
+    console.log('등록됨?')
+    return { message: `Added to new Member` };
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return { message: "Failed to create member" };
   }
 }
 
@@ -31,12 +48,12 @@ export async function fetchMember() {
     // return NextResponse.json({ member: result.rows[0] }, { status: 200 });
     return result.rows[0];
   } catch (error) {
-    throw new Error(error.message);
+    throw new Error("Error");
   }
 }
 
 // Function to map the database result to Word type
-function mapToWord(row): Word {
+function mapToWord(row:QueryResultRow): Word {
   return {
     word: row.word,
     definition: row.definition,
@@ -51,7 +68,7 @@ function mapToWord(row): Word {
 export async function fetchLevelWords(level: number): Promise<Word[]> {
   try {
     let result;
-    
+
     // If level is 9, fetch all words randomly
     if (level === 9) {
       result = await sql`
@@ -64,11 +81,11 @@ export async function fetchLevelWords(level: number): Promise<Word[]> {
     }
 
     if (result.rowCount === 0) {
-      throw new Error('No words found for this level');
+      throw new Error("No words found for this level");
     }
 
     return result.rows.map(mapToWord);
   } catch (error) {
-    throw new Error(error.message);
+    throw new Error("error");
   }
 }

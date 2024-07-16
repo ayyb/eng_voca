@@ -8,7 +8,7 @@
     ],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": false,
+    "strict": true, //strict mode
     "noEmit": true,
     "incremental": true,
     "module": "esnext",
@@ -30,13 +30,10 @@
     "strictNullChecks": true
   },
   "include": [
-    "src",
     "next-env.d.ts",
-    ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx",
-    "**/**/*.ts",
-    "**/**/*.tsx"
+    ".next/types/**/*.ts",
   ],
   "exclude": [
     "node_modules"
