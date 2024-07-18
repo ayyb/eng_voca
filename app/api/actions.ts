@@ -6,6 +6,9 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { MemberInfo } from "../lib/definitions";
 
+import { signIn } from '@/auth';
+import { AuthError } from 'next-auth';
+
 export async function createMember(
   prevState: {
     message: string;
@@ -178,5 +181,24 @@ WHERE
   } catch (error) {
     console.error("Error fetching word:", error);
     throw new Error("Error fetching word");
+  }
+}
+
+export async function authenticate(
+  prevState: string | undefined,
+  formData: FormData,
+) {
+  try {
+    await signIn('credentials', formData);
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case 'CredentialsSignin':
+          return 'Invalid credentials.';
+        default:
+          return 'Something went wrong.';
+      }
+    }
+    throw error;
   }
 }
