@@ -1,9 +1,13 @@
-'use client';
+"use client";
 
 import { useState } from "react";
-import { EyeIcon, SpeakerWaveIcon } from "@heroicons/react/24/solid";
-import { HeartIcon as EmptyHeart } from "@heroicons/react/24/outline";
-import { Word } from '@/app/lib/types';
+import { EyeIcon, HeartIcon, SpeakerWaveIcon } from "@heroicons/react/24/solid";
+import {
+  HeartIcon as EmptyHeart,
+  EyeIcon as EmptyEye,
+} from "@heroicons/react/24/outline";
+import { Word } from "@/app/lib/types";
+import { addLikeWord, deleteLikeWord } from "@/app/api/actions";
 
 interface VocabularyPageProps {
   words: Word[];
@@ -11,24 +15,68 @@ interface VocabularyPageProps {
 
 export default function VocabularyPage({ words }: VocabularyPageProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isHidden, setIsHidden] = useState(false);
 
   const currentWord = words[currentIndex];
+  console.log("currentWord", currentWord);
 
   const handleNext = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % words.length);
   };
 
   const handlePrev = () => {
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + words.length) % words.length);
+    setCurrentIndex(
+      (prevIndex) => (prevIndex - 1 + words.length) % words.length
+    );
+  };
+  
+
+  const handleClick = async () => {
+    //isFilled가 false 라면 단어장에 추가
+    if (!currentWord.liked) {
+      //좋아요 한 단어에 추가
+      const Likes = {
+        word: currentWord.no,
+        member: 2,
+      };
+      await addLikeWord(Likes);
+    } else {
+      //좋아요 취소
+      const Likes = {
+        word: currentWord.no,
+        member: 2,
+      };
+      await deleteLikeWord(Likes);
+    }
+
+    currentWord.liked = !currentWord.liked;
+  };
+
+  const handleHidden = () => {
+    setIsHidden(!isHidden);
   };
 
   return (
     <>
       <div className="p-4 w-full h-full">
         <div className="flex items-center justify-between h-20">
-          <p><EmptyHeart className="size-6 text-black-500"/></p>
-          <p><EyeIcon className="size-6 text-black-500"/></p>
-          <p><SpeakerWaveIcon className="size-6 text-black-500"/></p>
+          <p onClick={handleClick} className="cursor-pointer">
+            {currentWord.liked ? (
+              <HeartIcon className="size-6 text-black-500" />
+            ) : (
+              <EmptyHeart className="size-6 text-black-500" />
+            )}
+          </p>
+          <p onClick={handleHidden} className="cursor-pointer">
+            {isHidden ? (
+              <EmptyEye className="size-6 text-black-500" />
+            ) : (
+              <EyeIcon className="size-6 text-black-500" />
+            )}
+          </p>
+          <p>
+            <SpeakerWaveIcon className="size-6 text-black-500" />
+          </p>
         </div>
 
         {/* 영어단어 */}
@@ -43,7 +91,9 @@ export default function VocabularyPage({ words }: VocabularyPageProps) {
               <p>{currentWord.example}</p>
               <p>{currentWord.translation}</p>
             </div>
-            <p className="flex justify-center items-center"><SpeakerWaveIcon className="size-6 text-black-500"/></p>
+            <p className="flex justify-center items-center">
+              <SpeakerWaveIcon className="size-6 text-black-500" />
+            </p>
           </div>
         </div>
 
@@ -55,7 +105,9 @@ export default function VocabularyPage({ words }: VocabularyPageProps) {
           >
             이전
           </button>
-          <p className="justify-center items-center flex">{currentIndex + 1}/{words.length}</p>
+          <p className="justify-center items-center flex">
+            {currentIndex + 1}/{words.length}
+          </p>
           <button
             className="bg-white hover:bg-blue-200 text-black font-bold py-2 px-4 rounded-xl"
             onClick={handleNext}

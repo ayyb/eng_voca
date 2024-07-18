@@ -1,4 +1,5 @@
 export interface Word {
+    no: number; //단어번호
     word: string;
     definition: string;
     example: string;
@@ -6,4 +7,5 @@ export interface Word {
     word_level: number;
     part_of_speech?: string;
     translation?: string;
+    liked:boolean;
   }

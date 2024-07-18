@@ -9,7 +9,8 @@ interface VocabularyPageProps {
 
 export default async function Page({ params }: VocabularyPageProps) {
   const level = parseInt(params.level, 10);
-  const words: Word[] = await fetchLevelWords(level);
+  const memberId = 2; //임시
+  const words: Word[] = await fetchLevelWords(level, memberId);
 
   return <VocabularyPage words={words} />;
 }

@@ -4,17 +4,8 @@ import { HeartIcon, PencilIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { fetchMember } from '@/app/api/actions';
 
-interface Member {
-  no: number;
-  id: string;
-  pw: string;
-  name: string;
-  created_at: string;
-  member_level: number | null;
-}
-
 export default async function Page() {
-  const member  = await fetchMember();
+  const [ member ]  = await fetchMember();
   console.log("response",member);
 
   const score = 5
