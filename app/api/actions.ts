@@ -6,8 +6,9 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { MemberInfo } from "../lib/definitions";
 
-import { signIn } from '@/auth';
-import { AuthError } from 'next-auth';
+import { signIn } from "@/auth";
+import { AuthError } from "next-auth";
+import { redirect } from "next/navigation";
 
 export async function createMember(
   prevState: {
@@ -35,16 +36,15 @@ export async function createMember(
     `;
     // 페이지를 다시 검증하여 최신 데이터로 갱신
     revalidatePath("/home");
-    console.log("등록됨?");
+    // redirect('/login');
     return { message: `Added to new Member` };
   } catch (error) {
     return { message: "Failed to create member" };
   }
 }
 
-export async function fetchMember(): Promise<MemberInfo[]> {
+export async function fetchMember(id: string): Promise<MemberInfo[]> {
   try {
-    const id = "narii";
     const data = await sql<MemberInfo>`
         SELECT * FROM members WHERE id = ${id};
       `;
@@ -63,7 +63,10 @@ export async function fetchMember(): Promise<MemberInfo[]> {
   }
 }
 
-export async function fetchLevelWords(level: number, memberId:number): Promise<Word[]> {
+export async function fetchLevelWords(
+  level: number,
+  memberId: number
+): Promise<Word[]> {
   try {
     let result;
 
@@ -101,7 +104,7 @@ export async function fetchLevelWords(level: number, memberId:number): Promise<W
       throw new Error("No words found for this level");
     }
 
-    return result.rows
+    return result.rows;
   } catch (error) {
     throw new Error("error");
   }
@@ -186,19 +189,62 @@ WHERE
 
 export async function authenticate(
   prevState: string | undefined,
-  formData: FormData,
+  formData: FormData
 ) {
+  console.log("Formdata", formData);
   try {
-    await signIn('credentials', formData);
+    await signIn("credentials", {
+      redirect: true,
+      redirectTo: "/home",
+      ...Object.fromEntries(formData),
+    });
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
-        case 'CredentialsSignin':
-          return 'Invalid credentials.';
+        case "CredentialsSignin":
+          return "Invalid credentials.";
         default:
-          return 'Something went wrong.';
+          return "Something went wrong.";
       }
     }
     throw error;
+  }
+}
+
+//vocas에서 example과 word를 추출해서 새로운 data로 생성
+export async function fetchQuiz() {
+  try {
+    const data = await sql`
+      SELECT word AS correctAnswer, example AS sentence
+      FROM vocas
+      ORDER BY RANDOM()
+      LIMIT 10;
+    `;
+
+    return data.rows.map((row: QueryResultRow) => {
+      const regex = new RegExp(`/${row.correctAnswer}/`, 'gi');
+      return {
+        ...row,
+        sentence: row.sentence.replace(regex, '___'),
+      };
+    });
+  } catch (error) {
+    throw new Error("error");
+  }
+}
+
+//vocas에서 단어만 추출해서 choice목록으로 만듬
+export async function fetchChoiceWords() {
+  try {
+    const data = await sql`
+      SELECT word
+      FROM vocas
+      ORDER BY RANDOM()
+      LIMIT 3;
+    `;
+
+    return data.rows;
+  } catch (error) {
+    throw new Error("error");
   }
 }

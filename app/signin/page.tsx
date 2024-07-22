@@ -14,7 +14,6 @@ export default function SignInPage() {
           <p className="text-6xl font-bold items-center flex">Sign in</p>
         </div>
         <form action={async (formData)=>{
-          "use server"
           await signIn("credentials", formData);
         }}>
           <div className="space-y-4 flex-1 h-1/4 ">

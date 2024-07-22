@@ -1,4 +1,8 @@
-export default function ProblemPage() {
+import { fetchQuiz } from "@/app/api/actions";
+export default async function ProblemPage() {
+  const quiz = await fetchQuiz();
+  console.log('퀴즈 리스트',quiz);
+  
   return (
     <>
       <div className="p-4 w-full h-full">

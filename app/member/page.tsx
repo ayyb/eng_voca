@@ -2,6 +2,7 @@
 import { fetchMember } from "@/app/api/actions";
 import { useState, useEffect } from "react";
 import { MemberInfo } from "@/app/lib/definitions";
+import { auth } from "@/auth";
 
 const getMemberLevelText = (level: Number) => {
   switch (level) {
@@ -17,8 +18,6 @@ const getMemberLevelText = (level: Number) => {
 };
 // MemberInfo 타입 정의
 
-
-
 export default function MemberPage() {
   // useState 훅을 사용하여 상태 관리
   const [isHidden, setIsHidden] = useState(true);
@@ -28,17 +27,19 @@ export default function MemberPage() {
   };
   useEffect(() => {
     async function fetchData() {
-      const [info] = await fetchMember();
+      const userId = 'narii'; //동적으로 변경 필요
+      const [info] = await fetchMember(userId);
       console.log("member 정보", info);
       setMemberInfo(info);
     }
     fetchData();
   }, []);
 
-  if (!memberInfo) { //member가 null이면 조건부 렌더링
+  if (!memberInfo) {
+    //member가 null이면 조건부 렌더링
     return <div>Loading...</div>;
   }
-  
+
   return (
     <>
       <div className="p-3 w-full h-full ">
@@ -94,7 +95,7 @@ export default function MemberPage() {
 
         {/* 비밀번호 변경 */}
         {/* isHidden이 true이면 hidden */}
-        <div className={isHidden ? 'hidden' : ''}>
+        <div className={isHidden ? "hidden" : ""}>
           <div className="flex flex-col w-full">
             <input
               type="text"

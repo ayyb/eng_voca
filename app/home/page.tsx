@@ -2,22 +2,31 @@
 import React from "react";
 import { HeartIcon, PencilIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
-import { fetchMember } from '@/app/api/actions';
+import { fetchMember } from "@/app/api/actions";
+import { auth } from "@/auth";
 
 export default async function Page() {
-  const [ member ]  = await fetchMember();
-  console.log("response",member);
+  const session = await auth();
+  console.log("session", session?.user);
+  const userId = session?.user?.id || "";
+  if (userId) {
+    const [member] = await fetchMember(userId);
+    console.log("멤버 정보",member);
+  }
+  const memeberName = session?.user?.name ?? "Guest";
 
-  const score = 5
-  const total = 30
-  const progress = score / total * 100;
+  const score = 5;
+  const total = 30;
+  const progress = (score / total) * 100;
   return (
     <>
       <div className="p-4 h-full">
         <p className="text-3xl font-bold text-white w-full">
-          Hello, {member.name ?? 'Guest'}!
+          Hello, {memeberName}!
         </p>
-        <h2 className="text mt-2">Your learning Progress {`${score} / ${total}`}</h2>
+        <h2 className="text mt-2">
+          Your learning Progress {`${score} / ${total}`}
+        </h2>
         {/* 프로그래스바 */}
         <div className="w-full bg-gray-200 rounded-full h-6 my-4">
           <div
@@ -27,9 +36,7 @@ export default async function Page() {
         </div>
 
         <div className="flex space-x-4 w-full">
-          <div
-            className="like_box bg-white p-4 my-4 cursor-pointer rounded-lg flex-1"
-          >
+          <div className="like_box bg-white p-4 my-4 cursor-pointer rounded-lg flex-1">
             <Link href="/likes">
               <div className="flex justify-between items-center">
                 <div>
@@ -42,9 +49,7 @@ export default async function Page() {
               </div>
             </Link>
           </div>
-          <div
-            className="quiz_box bg-white p-4 my-4 cursor-pointer rounded-lg text-black flex-1 "
-          >
+          <div className="quiz_box bg-white p-4 my-4 cursor-pointer rounded-lg text-black flex-1 ">
             <Link href="/quiz">
               <div className="flex justify-between items-center">
                 <div>
@@ -76,19 +81,31 @@ export default async function Page() {
         <h2 className="mt-4 text-3xl font-bold text-white mb-4">Levels</h2>
         <div className="flex flex-wrap w-full space-y-4 h-1/4">
           <div className="flex w-full space-x-4 ">
-            <Link href="/home/vocabulary/1" className="bg-red-100 p-4 flex-1 rounded-lg">
-            Beginner
+            <Link
+              href="/home/vocabulary/1"
+              className="bg-red-100 p-4 flex-1 rounded-lg"
+            >
+              Beginner
             </Link>
-            <Link href="/home/vocabulary/2" className="bg-yellow-100 p-4 flex-1 rounded-lg">
-            Intermediate
+            <Link
+              href="/home/vocabulary/2"
+              className="bg-yellow-100 p-4 flex-1 rounded-lg"
+            >
+              Intermediate
             </Link>
           </div>
           <div className="flex w-full space-x-4">
-          <Link href="/home/vocabulary/3" className="bg-blue-100 p-4 flex-1 rounded-lg">
-          Advanced
+            <Link
+              href="/home/vocabulary/3"
+              className="bg-blue-100 p-4 flex-1 rounded-lg"
+            >
+              Advanced
             </Link>
-            <Link href="/home/vocabulary/4" className="bg-green-100 p-4 flex-1 rounded-lg">
-            Expert
+            <Link
+              href="/home/vocabulary/4"
+              className="bg-green-100 p-4 flex-1 rounded-lg"
+            >
+              Expert
             </Link>
           </div>
         </div>
