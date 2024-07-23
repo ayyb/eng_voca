@@ -6,8 +6,16 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { MemberInfo } from "../lib/definitions";
 
-import { signIn } from "@/auth";
+import { signIn,auth } from "@/auth";
 import { AuthError } from "next-auth";
+
+//session 에서 유저 정보 조회 - 서버사이드에서 로그인되었을 경우
+const session = await auth();
+console.log("session", session);
+const userId = session?.user?.id || "";
+const userInfo = await fetchMember();
+const userNo = userInfo.no;
+
 
 export async function createMember(
   prevState: {
@@ -31,7 +39,7 @@ export async function createMember(
     console.log("데이터 받음", data);
     await sql`
       INSERT INTO members (id, pw, name, created_at, member_level)
-      VALUES (${data.id}, ${data.pw}, ${data.name}, CURRENT_DATE, 1);
+      VALUES (${data.id}, ${data.pw}, ${data.name}, now(), 1);
     `;
     // 페이지를 다시 검증하여 최신 데이터로 갱신
     revalidatePath("/home");
@@ -42,10 +50,10 @@ export async function createMember(
   }
 }
 
-export async function fetchMember(id: string): Promise<MemberInfo[]> {
+export async function fetchMember(): Promise<MemberInfo> {
   try {
     const data = await sql<MemberInfo>`
-        SELECT * FROM members WHERE id = ${id};
+        SELECT no, id, pw, name, TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at, member_level FROM members WHERE id = ${userId};
       `;
 
     if (data.rowCount === 0) {
@@ -53,10 +61,10 @@ export async function fetchMember(id: string): Promise<MemberInfo[]> {
     }
 
     // return NextResponse.json({ member: result.rows[0] }, { status: 200 });
-    const latestInvoices = data.rows.map((invoice) => ({
-      ...invoice,
-    }));
-    return latestInvoices;
+    // const latestInvoices = .map((invoice) => ({
+    //   ...invoice,
+    // }));
+    return data.rows[0];
   } catch (error) {
     throw new Error("Error");
   }
@@ -167,16 +175,16 @@ export async function fetchWord(vocaId: number): Promise<Voca> {
 }
 
 //특정회원의 좋아요한 단어를 조회
-export async function fetchLikeWord(member: number): Promise<Words[]> {
+export async function fetchLikeWord(member: string): Promise<Words[]> {
   try {
     const data = await sql<Words>`
-        SELECT vocas.no, vocas.word, vocas.definition, likes.liked_at
+  SELECT vocas.no, vocas.word, vocas.definition, likes.liked_at
 FROM
   likes
 JOIN
   vocas ON likes.voca_id = vocas.no
 WHERE
-  likes.member_id = ${member};
+  likes.member_id = (select no from members where id= ${member});
     `;
 
     return data.rows;

@@ -20,30 +20,6 @@ export default function SignUpPage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const buttonClick = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // 이벤트 기본 동작을 막음
-    try {
-      const validatedData = MemberSchema.parse(formData); // 데이터 검증
-      setErrors({});
-      console.log("Validated Data:", validatedData);
-      //데이터 제출 로직
-      alert("Member created successfully");
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const newErrors: Record<string, string> = {};
-        error.errors.forEach((err) => {
-          if (err.path && err.path.length > 0) {
-            newErrors[err.path[0]] = err.message;
-          }
-        });
-        setErrors(newErrors);
-      } else {
-        console.error(error);
-        alert("Failed to submit");
-      }
-    }
-  };
-
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     console.log(name, value);
@@ -55,13 +31,18 @@ export default function SignUpPage() {
     console.log("Current Form Data:", formData);
   };
 
+  useState(() => {
+    if(state.message){
+      alert(state.message);
+    }
+  });
+
   return (
     <>
       <div className="p-3 w-full h-full">
         <div className="flex h-1/3">
           <p className="text-6xl font-bold items-center flex">Sign up</p>
         </div>
-        {/* <form onSubmit={buttonClick}> */}
         <form action={formAction}>
           <div className="space-y-4 flex-1 mb-20">
             <div className="flex flex-col w-full">

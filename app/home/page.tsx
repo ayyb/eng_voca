@@ -3,21 +3,27 @@ import React from "react";
 import { HeartIcon, PencilIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { fetchMember } from "@/app/api/actions";
-import { auth } from "@/auth";
+import { fetchLikeWord } from "@/app/api/actions";
 
 export default async function Page() {
-  const session = await auth();
-  console.log("session", session?.user);
-  const userId = session?.user?.id || "";
-  if (userId) {
-    const [member] = await fetchMember(userId);
-    console.log("멤버 정보",member);
-  }
-  const memeberName = session?.user?.name ?? "Guest";
+  // const session = await auth();
+  // console.log("session", session.user.id);
+  // const userId = session.user.id;
+  const member = await fetchMember();
+  
+  let userNo = 0;
+  // if (userId) {
+  //   const [member] = await fetchMember(userId);
+  //   console.log("member", member);
+  //   userNo = member.no;
+  // }
+  const memeberName = member.name ?? "Guest";
 
   const score = 5;
   const total = 30;
   const progress = (score / total) * 100;
+  // const words = await fetchLikeWord(userId); //member Id 값 넘기기
+  const words = []; //member Id 값 넘기기
   return (
     <>
       <div className="p-4 h-full">
@@ -41,7 +47,7 @@ export default async function Page() {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-lg font-bold">Likes</p>
-                  <p className="text-gray-500 text-sm">33 words</p>
+                  <p className="text-gray-500 text-sm">{words.length} words</p>
                 </div>
                 <p className="ml-auto">
                   <HeartIcon className="size-6 text-black-500" />
