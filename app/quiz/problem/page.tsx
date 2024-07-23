@@ -1,8 +1,33 @@
 import { fetchQuiz } from "@/app/api/actions";
+import { fetchChoiceWords } from "@/app/api/actions";
+import Question from "@/ui/quiz/Question";
+
+interface Choice {
+  word: string;
+  isAnswer: boolean;
+}
+
+
 export default async function ProblemPage() {
   const quiz = await fetchQuiz();
-  console.log('퀴즈 리스트',quiz);
-  
+  const updateQuiz = quiz.map((row: any) => {
+    // 정규식을 올바르게 생성합니다.
+    const regex = new RegExp(row.correctanswer, 'gi');
+    return {
+      ...row,
+      // replace 메서드를 사용하여 문장을 업데이트합니다.
+      sentence: row.sentence.replace(regex, '___'),
+    };
+  });
+  console.log('퀴즈 리스트',updateQuiz);
+  const answers = await fetchChoiceWords();
+  const updatedAnswer = answers.map((answer : Choice) => {
+    return {
+      word: answer.word,
+      answer: false,
+    };
+  });
+  const choices = [...updatedAnswer, { word: quiz[0].correctanswer, answer: true }];
   return (
     <>
       <div className="p-4 w-full h-full">
@@ -13,14 +38,9 @@ export default async function ProblemPage() {
           <div className="bg-progress h-4 rounded-full"></div>
         </div>
         {/* 문제 */}
-        <div className="flex flex-col py-3 h-1/2 justify-center">
-            <p className="font-bold text-3xl mb-4 text-center">
-              Would you rather live to ___ or ___ to live?
-            </p>
-            <p className="text-center">일하기 위해 살래, 살기 위해 일할래?</p>
-        </div>
+        <Question initialQuiz={updateQuiz} initialChoices={choices} />
         {/* 선택지 */}
-        <div className="flex flex-col space-y-4 w-full">
+        {/* <div className="flex flex-col space-y-4 w-full">
           <div className="bg-white rounded-lg text-center justify-center items-center py-2 font-bold text-red-500">
             move
           </div>
@@ -33,7 +53,7 @@ export default async function ProblemPage() {
           <div className="bg-white rounded-lg text-center justify-center items-center py-2 font-bold">
             dance
           </div>
-        </div>
+        </div> */}
       </div>
     </>
   );

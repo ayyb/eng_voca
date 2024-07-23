@@ -1,3 +1,4 @@
+import Link from "next/link";
 export default function ResultPage() {
   return (
     <>
@@ -15,15 +16,21 @@ export default function ResultPage() {
         </div>
         {/* 선택지 */}
         <div className="flex flex-col space-y-6 w-full">
+          <Link href="/quiz/problem">
           <div className="bg-white rounded-lg text-center justify-center items-center py-3 font-bold text-xl">
             Replay
           </div>
+          </Link>
+          <Link href="/quiz/review">
           <div className="bg-white rounded-lg text-center justify-center items-center py-3 font-bold text-xl">
             Review
           </div>
+          </Link>
+          <Link href="/home">
           <div className="bg-white rounded-lg text-center justify-center items-center py-3 font-bold text-xl">
             Exit
           </div>
+          </Link>
         </div>
       </div>
     </>
