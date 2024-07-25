@@ -9,7 +9,7 @@ interface Quiz {
 
 interface Choice {
   word: string;
-  isAnswer: boolean;
+  isAnswer?: boolean;
 }
 
 interface QuestionProps {
@@ -70,7 +70,7 @@ const Question: React.FC<QuestionProps> = ({ initialQuiz, initialChoices }) => {
           <div
             key={index}
             className="bg-white rounded-lg text-center justify-center items-center py-2 font-bold"
-            onClick={() => nextQuiz(choice.isAnswer)}
+            onClick={() => nextQuiz(choice.isAnswer as boolean)}
           >
             {choice.word}
           </div>

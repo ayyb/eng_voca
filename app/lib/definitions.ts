@@ -38,3 +38,9 @@ export type User = {
   email: string;
   password: string;
 };
+
+
+export interface Choice {
+  word: string;
+  isAnswer?: boolean;
+}

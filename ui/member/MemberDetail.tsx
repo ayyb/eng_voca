@@ -29,10 +29,9 @@ const MemberDetail = ({ userId }: MemberDetailProps) => {
   };
   useEffect(() => {
     async function fetchData() {
-      // const userId = "narii"; //동적으로 변경 필요
       
       if (userId) {
-        const [info] = await fetchMember(userId);
+        const info = await fetchMember(userId);
         console.log("member 정보", info);
         setMemberInfo(info);
       }

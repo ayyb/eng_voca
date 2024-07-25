@@ -4,18 +4,15 @@ import { Word } from "@/app/lib/types";
 import { Words, Voca } from "@/app/lib/definitions";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { MemberInfo } from "../lib/definitions";
+import { MemberInfo,Choice } from "../lib/definitions";
 
 import { signIn,auth } from "@/auth";
 import { AuthError } from "next-auth";
 
-//session 에서 유저 정보 조회 - 서버사이드에서 로그인되었을 경우
-const session = await auth();
-console.log("session", session);
-const userId = session?.user?.id || "";
-const userInfo = await fetchMember();
-const userNo = userInfo.no;
-
+type Answers = {
+  correctAnswer: string;
+  sentence: string;
+};
 
 export async function createMember(
   prevState: {
@@ -50,7 +47,7 @@ export async function createMember(
   }
 }
 
-export async function fetchMember(): Promise<MemberInfo> {
+export async function fetchMember(userId : string): Promise<MemberInfo> {
   try {
     const data = await sql<MemberInfo>`
         SELECT no, id, pw, name, TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at, member_level FROM members WHERE id = ${userId};
@@ -64,6 +61,7 @@ export async function fetchMember(): Promise<MemberInfo> {
     // const latestInvoices = .map((invoice) => ({
     //   ...invoice,
     // }));
+    console.log('data', data.rows[0]);
     return data.rows[0];
   } catch (error) {
     throw new Error("Error");
@@ -221,14 +219,14 @@ export async function authenticate(
 //vocas에서 example과 word를 추출해서 새로운 data로 생성
 export async function fetchQuiz() {
   try {
-    const data = await sql`
+    const data = await sql<Answers>`
       SELECT word AS correctAnswer, example AS sentence
       FROM vocas
       ORDER BY RANDOM()
       LIMIT 10;
     `;
 
-    return data.rows.map((row: QueryResultRow) => {
+    return data.rows.map((row: Answers) => {
       const regex = new RegExp(`/${row.correctAnswer}/`, 'gi');
       return {
         ...row,
@@ -243,7 +241,7 @@ export async function fetchQuiz() {
 //vocas에서 단어만 추출해서 choice목록으로 만듬
 export async function fetchChoiceWords() {
   try {
-    const data = await sql`
+    const data = await sql<Choice>`
       SELECT word
       FROM vocas
       ORDER BY RANDOM()

@@ -4,19 +4,12 @@ import { HeartIcon, PencilIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { fetchMember } from "@/app/api/actions";
 import { fetchLikeWord } from "@/app/api/actions";
+import { auth } from "@/auth";
 
 export default async function Page() {
-  // const session = await auth();
-  // console.log("session", session.user.id);
-  // const userId = session.user.id;
-  const member = await fetchMember();
-  
-  let userNo = 0;
-  // if (userId) {
-  //   const [member] = await fetchMember(userId);
-  //   console.log("member", member);
-  //   userNo = member.no;
-  // }
+  const session = await auth();
+  const userId = session?.user?.id as string;
+  const member = await fetchMember(userId);
   const memeberName = member.name ?? "Guest";
 
   const score = 5;

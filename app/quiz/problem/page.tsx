@@ -1,12 +1,7 @@
 import { fetchQuiz } from "@/app/api/actions";
 import { fetchChoiceWords } from "@/app/api/actions";
 import Question from "@/ui/quiz/Question";
-
-interface Choice {
-  word: string;
-  isAnswer: boolean;
-}
-
+import { Choice } from "@/app/lib/definitions";
 
 export default async function ProblemPage() {
   const quiz = await fetchQuiz();
@@ -27,7 +22,7 @@ export default async function ProblemPage() {
       answer: false,
     };
   });
-  const choices = [...updatedAnswer, { word: quiz[0].correctanswer, answer: true }];
+  const choices = [...updatedAnswer, { word: quiz[0].correctAnswer, answer: true }];
   return (
     <>
       <div className="p-4 w-full h-full">
@@ -39,21 +34,6 @@ export default async function ProblemPage() {
         </div>
         {/* 문제 */}
         <Question initialQuiz={updateQuiz} initialChoices={choices} />
-        {/* 선택지 */}
-        {/* <div className="flex flex-col space-y-4 w-full">
-          <div className="bg-white rounded-lg text-center justify-center items-center py-2 font-bold text-red-500">
-            move
-          </div>
-          <div className="bg-white rounded-lg text-center justify-center items-center py-2 font-bold text-green-500">
-            work
-          </div>
-          <div className="bg-white rounded-lg text-center justify-center items-center py-2 font-bold">
-            make
-          </div>
-          <div className="bg-white rounded-lg text-center justify-center items-center py-2 font-bold">
-            dance
-          </div>
-        </div> */}
       </div>
     </>
   );
