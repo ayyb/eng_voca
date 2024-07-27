@@ -2,6 +2,16 @@
 import { useEffect, useState } from "react";
 import { fetchChoiceWords } from "@/app/api/actions";
 import { useRouter } from "next/navigation";
+
+// Fisher-Yates Shuffle 알고리즘을 사용하여 배열을 랜덤으로 섞는 함수
+const shuffleArray = (array: Choice[]) => {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+};
+
 interface Quiz {
   correctanswer: string;
   sentence: string;
@@ -49,14 +59,22 @@ const Question: React.FC<QuestionProps> = ({ initialQuiz, initialChoices }) => {
       word: answer.word,
       isAnswer: false,
     }));
-    setChoices([
+    const choices = [
       ...updatedAnswers,
       { word: quiz[currentIndex+1].correctanswer, isAnswer: true },
-    ]);
+    ]
+    const shuffledChoices = shuffleArray(choices);
+    setChoices(shuffledChoices);
   };
 
   return (
     <>
+        {/* 진행바 */}
+        <h2 className="mt-2">Score : {currentIndex+1}/{quiz.length}</h2>
+        {/* 프로그래스바 */}
+        <div className="w-full bg-gray-200 rounded-full h-4 my-4">
+          <div className="bg-progress h-4 rounded-full"></div>
+        </div>
       {/* 문제 */}
       <div className="flex flex-col py-3 h-1/2 justify-center">
         <p className="font-bold text-3xl mb-4 text-center">

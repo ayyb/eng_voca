@@ -17,6 +17,7 @@ export type MemberInfo = {
   
   export interface LikeWordsListProps {
     initialWords: Words[];
+    memberId:number;
   }
 
   export type Voca = {
@@ -30,6 +31,7 @@ export type MemberInfo = {
 
 export interface LikeWordsProps {
     likeWord: Words;
+    memberId:number;
 }
 
 export type User = {

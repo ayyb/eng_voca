@@ -5,7 +5,7 @@ import LikeWords from "@/components/LikeWords";
 import SortOptions from "@/ui/Likes/SortOptions";
 import { Words, LikeWordsListProps } from "@/app/lib/definitions";
 
-const LikeWordsList: React.FC<LikeWordsListProps> = ({ initialWords }) => {
+const LikeWordsList: React.FC<LikeWordsListProps> = ({ initialWords,memberId }) => {
     console.log("좋아요 단어리스트",initialWords)
   const [likeWords, setLikeWords] = useState<Words[]>(initialWords); //likes List
   console.log("좋아요 단어리스트",likeWords)
@@ -22,6 +22,11 @@ const LikeWordsList: React.FC<LikeWordsListProps> = ({ initialWords }) => {
     }
     setLikeWords(sortedWords);
   };
+  //삭제되면 새로 likeWokds를 불러옴
+  const handleDelete = async (word: Words) => {
+    const newWords = likeWords.filter((likeWord) => likeWord.no !== word.no);
+    setLikeWords(newWords);
+  };
   
 
   return (
@@ -29,7 +34,7 @@ const LikeWordsList: React.FC<LikeWordsListProps> = ({ initialWords }) => {
       <SortOptions onSortChange={handleSortChange} />
       <div className="flex flex-col space-y-4 mt-5 mb-10 w-full">
         {likeWords.map((likeWord) => (
-          <LikeWords key={likeWord.no} likeWord={likeWord} />
+          <LikeWords key={likeWord.no} likeWord={likeWord} memberId={memberId}/>
         ))}
       </div>
     </>

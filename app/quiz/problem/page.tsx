@@ -3,6 +3,16 @@ import { fetchChoiceWords } from "@/app/api/actions";
 import Question from "@/ui/quiz/Question";
 import { Choice } from "@/app/lib/definitions";
 
+// Fisher-Yates Shuffle 알고리즘을 사용하여 배열을 랜덤으로 섞는 함수
+const shuffleArray = (array: Choice[]) => {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+};
+
+
 export default async function ProblemPage() {
   const quiz = await fetchQuiz();
   const updateQuiz = quiz.map((row: any) => {
@@ -22,18 +32,15 @@ export default async function ProblemPage() {
       answer: false,
     };
   });
-  const choices = [...updatedAnswer, { word: quiz[0].correctAnswer, answer: true }];
+  //랜덤으로 섞어서 선택리 리스트 초기화
+  const choices = [...updatedAnswer, { word: updateQuiz[0].correctanswer, answer: true }];
+  const shuffledChoices = shuffleArray(choices);
+  console.log('선택지 리스트',shuffledChoices);
   return (
     <>
       <div className="p-4 w-full h-full">
-        {/* 진행바 */}
-        <h2 className="mt-2">Score : 1/20</h2>
-        {/* 프로그래스바 */}
-        <div className="w-full bg-gray-200 rounded-full h-4 my-4">
-          <div className="bg-progress h-4 rounded-full"></div>
-        </div>
         {/* 문제 */}
-        <Question initialQuiz={updateQuiz} initialChoices={choices} />
+        <Question initialQuiz={updateQuiz} initialChoices={shuffledChoices} />
       </div>
     </>
   );

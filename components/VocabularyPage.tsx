@@ -8,12 +8,14 @@ import {
 } from "@heroicons/react/24/outline";
 import { Word } from "@/app/lib/types";
 import { addLikeWord, deleteLikeWord } from "@/app/api/actions";
+import WordComponent from "./WordComponent";
 
 interface VocabularyPageProps {
   words: Word[];
+  memberId: number;
 }
 
-export default function VocabularyPage({ words }: VocabularyPageProps) {
+export default function VocabularyPage({ words,memberId }: VocabularyPageProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHidden, setIsHidden] = useState(false);
 
@@ -37,14 +39,14 @@ export default function VocabularyPage({ words }: VocabularyPageProps) {
       //좋아요 한 단어에 추가
       const Likes = {
         word: currentWord.no,
-        member: 2,
+        member: memberId,
       };
       await addLikeWord(Likes);
     } else {
       //좋아요 취소
       const Likes = {
         word: currentWord.no,
-        member: 2,
+        member: memberId,
       };
       await deleteLikeWord(Likes);
     }
@@ -60,13 +62,14 @@ export default function VocabularyPage({ words }: VocabularyPageProps) {
     <>
       <div className="p-4 w-full h-full">
         <div className="flex items-center justify-between h-20">
-          <p onClick={handleClick} className="cursor-pointer">
+          <WordComponent currentWord={currentWord} memberId={memberId} />
+          {/* <p onClick={handleClick} className="cursor-pointer">
             {currentWord.liked ? (
               <HeartIcon className="size-6 text-black-500" />
             ) : (
               <EmptyHeart className="size-6 text-black-500" />
             )}
-          </p>
+          </p> */}
           <p onClick={handleHidden} className="cursor-pointer">
             {isHidden ? (
               <EmptyEye className="size-6 text-black-500" />

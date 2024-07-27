@@ -1,11 +1,14 @@
 "use client";
 import { EyeIcon, TrashIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import { LikeWordsProps } from "@/app/lib/definitions";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { deleteLikeWord } from "@/app/api/actions";
 import { revalidatePath } from "next/cache";
+import { useRouter } from "next/navigation";
 
-export default function LikeWords({ likeWord }: LikeWordsProps) {
+export default function LikeWords({ likeWord,memberId }: LikeWordsProps) {
+  const router = useRouter();
+  console.log('멤버아이디',memberId)
   console.log("test", likeWord);
   if (!likeWord) {
     return <div>Loading...</div>;
@@ -15,12 +18,18 @@ export default function LikeWords({ likeWord }: LikeWordsProps) {
     setIsHidden(!isHidden);
   }
   const handleDelete = async() => {
-    // Delete the word
+    if(confirm("정말 삭제하시겠습니까?")){
     const targetWord ={
       word: likeWord.no,
-      member: 2,
+      member: memberId,
     }
     await deleteLikeWord(targetWord);
+      console.log("삭제");
+      //삭제후 새로고침
+      router.refresh();
+    }else{
+      return;
+    }
   }
   return (
     <>

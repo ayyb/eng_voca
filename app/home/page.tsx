@@ -16,7 +16,8 @@ export default async function Page() {
   const total = 30;
   const progress = (score / total) * 100;
   // const words = await fetchLikeWord(userId); //member Id 값 넘기기
-  const words = []; //member Id 값 넘기기
+  const words = await fetchLikeWord(userId);
+  //전역에서 회원관리할 필요성이 있음
   return (
     <>
       <div className="p-4 h-full">
@@ -53,7 +54,7 @@ export default async function Page() {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-lg font-bold">Quiz</p>
-                  <p className="text-gray-500 text-sm">Latest 10/30</p>
+                  <p className="text-gray-500 text-sm">Latest 0/10</p>
                 </div>
                 <p className="ml-auto">
                   <PencilIcon className="size-6 text-black-500" />
