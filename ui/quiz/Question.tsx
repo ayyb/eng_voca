@@ -61,20 +61,25 @@ const Question: React.FC<QuestionProps> = ({ initialQuiz, initialChoices }) => {
     }));
     const choices = [
       ...updatedAnswers,
-      { word: quiz[currentIndex+1].correctanswer, isAnswer: true },
-    ]
+      { word: quiz[currentIndex + 1].correctanswer, isAnswer: true },
+    ];
     const shuffledChoices = shuffleArray(choices);
     setChoices(shuffledChoices);
   };
-
+  const progress = ((currentIndex +1) / quiz.length) * 100;
   return (
     <>
-        {/* 진행바 */}
-        <h2 className="mt-2">Score : {currentIndex+1}/{quiz.length}</h2>
-        {/* 프로그래스바 */}
-        <div className="w-full bg-gray-200 rounded-full h-4 my-4">
-          <div className="bg-progress h-4 rounded-full"></div>
-        </div>
+      {/* 진행바 */}
+      <h2 className="mt-2">
+        Score : {currentIndex + 1}/{quiz.length}
+      </h2>
+      {/* 프로그래스바 */}
+      <div className="w-full bg-gray-200 rounded-full h-4 my-4">
+        <div
+          className="bg-progress h-4 rounded-full "
+          style={{ width: `${progress}%` }}
+        ></div>
+      </div>
       {/* 문제 */}
       <div className="flex flex-col py-3 h-1/2 justify-center">
         <p className="font-bold text-3xl mb-4 text-center">

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import QuizScore from "@/ui/quiz/QuizScore";
 export default function ResultPage() {
   return (
     <>
@@ -8,9 +9,10 @@ export default function ResultPage() {
           <p className="font-bold text-5xl mb-4 text-center">
             SCORE
           </p>
-          <p className="font-bold text-5xl mb-4 text-center">
+          <QuizScore />
+          {/* <p className="font-bold text-5xl mb-4 text-center">
             10 / 20
-          </p>
+          </p> */}
           <p className="text-center">OMG! Please study harder~</p>
           <p className="text-center">You can do better than this!</p>
         </div>

@@ -14,7 +14,7 @@ export default async function LikesPage() {
   return (
     <>
       <div className="p-4 w-full h-full">
-        <Header length={words.length}/>
+        {/* <Header length={words.length}/> */}
         <LikeWordsList initialWords={words} memberId={memberId}/>
       </div>
     </>

@@ -10,13 +10,12 @@ export default function MainLayout({
   }
   return (
     <>
-      <div className="bg-white flex items-center justify-center min-h-screen">
-        <div className="bg-customBlue p-4 w-full max-w-md h-screen flex flex-col items-center justify-center">
-          {children}
-          <NavFooter />  
+        <div className="bg-white flex items-center justify-center min-h-screen">
+          <div className="bg-customBlue p-4 w-full max-w-md h-screen flex flex-col items-center justify-center">
+            {children}
+            <NavFooter />
+          </div>
         </div>
-        
-      </div>
     </>
   );
 }
