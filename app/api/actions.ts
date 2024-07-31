@@ -253,3 +253,29 @@ export async function fetchChoiceWords() {
     throw new Error("error");
   }
 }
+
+//점수 계산
+const result = {score:0, total:0};
+
+//정답
+export async function scoreCalculation(correct: number, sum: number) {
+  console.log("점수", correct);
+  result.score = correct;
+  result.total = sum;
+}
+
+export async function fetchScore() {
+  console.log('리턴값',result);
+  return result;
+}
+
+// let reviewQuizList = [];
+
+// export async function setQuizList(obj) {// 리뷰를 위한 데이터
+//   reviewQuizList = obj;
+// }
+
+// export async function getQuizList() {
+//   console.log('리턴값',reviewQuizList);
+//   return reviewQuizList;
+// }

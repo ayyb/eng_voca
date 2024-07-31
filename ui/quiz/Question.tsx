@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { fetchChoiceWords } from "@/app/api/actions";
+import { fetchChoiceWords, scoreCalculation } from "@/app/api/actions";
 import { useRouter } from "next/navigation";
 
 // Fisher-Yates Shuffle 알고리즘을 사용하여 배열을 랜덤으로 섞는 함수
@@ -19,7 +19,7 @@ interface Quiz {
 
 interface Choice {
   word: string;
-  isAnswer?: boolean;
+  isAnswer: boolean;
 }
 
 interface QuestionProps {
@@ -30,20 +30,38 @@ interface QuestionProps {
 const Question: React.FC<QuestionProps> = ({ initialQuiz, initialChoices }) => {
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isHidden, setIsHidden] = useState(false);
+  // const [isHidden, setIsHidden] = useState(false);
+  const [isQuizFinished, setIsQuizFinished] = useState(false);
   const [quiz, setQuiz] = useState(initialQuiz);
   const [choices, setChoices] = useState(initialChoices);
+  console.log("초기값",choices);
+  const [score, setScore] = useState(0);
+  console.log("이니셜 답지", initialChoices);
+  console.log("점수", score);
+  
+  //리뷰를 위한 정보
+  const [reviewData, setReviewData] = useState([{sentence:"", answer:false}]);
+
   useEffect(() => {}, [currentIndex]);
   const nextQuiz = (isAnswer: boolean) => {
-    console.log(isAnswer);
+    console.log("왜 언디파인드?",isAnswer);
     // 만약 답을 클릭했을경우 초록색으로 표시
     if (isAnswer) {
+      setScore(prevScore => prevScore + 1);
+      console.log(score);
       alert("정답입니다!");
     } else {
       alert("틀렸습니다!");
     }
+
+    //클릭하면 리뷰데이터에 추가
+    setReviewData([...reviewData, {sentence:quiz[currentIndex].sentence, answer:isAnswer}]);
+    
+
     const nextIndex = (currentIndex + 1) % quiz.length;
     if (currentIndex === quiz.length - 1) {
+      console.log("최종점수", score);
+      setIsQuizFinished(true);
       alert("끝났습니다.");
       //결과페이지로 이동 QuizResult
       router.push("/quiz/result");
@@ -53,33 +71,47 @@ const Question: React.FC<QuestionProps> = ({ initialQuiz, initialChoices }) => {
     }
   };
 
+  useEffect(() => {
+    if (isQuizFinished) {
+      console.log("최종점수", score);
+      scoreCalculation(score, quiz.length);
+    }
+  }, [isQuizFinished, score]);
+
   const fetchNewChoices = async () => {
     const newAnswers = await fetchChoiceWords();
     const updatedAnswers = newAnswers.map((answer: Choice) => ({
       word: answer.word,
       isAnswer: false,
     }));
-    const choices = [
+    const newChoices = [
       ...updatedAnswers,
       { word: quiz[currentIndex + 1].correctanswer, isAnswer: true },
     ];
-    const shuffledChoices = shuffleArray(choices);
+    const shuffledChoices = shuffleArray(newChoices);
     setChoices(shuffledChoices);
   };
-  const progress = ((currentIndex +1) / quiz.length) * 100;
+  const progress = ((currentIndex) / quiz.length) * 100;
   return (
     <>
       {/* 진행바 */}
       <h2 className="mt-2">
-        Score : {currentIndex + 1}/{quiz.length}
+        Score : {currentIndex}/{quiz.length}
       </h2>
       {/* 프로그래스바 */}
-      <div className="w-full bg-gray-200 rounded-full h-4 my-4">
+      <div className="w-full bg-gray-200 rounded-full h-6 my-4">
+          <div
+            className="bg-progress h-6 rounded-full"
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
+      {/* 프로그래스바 */}
+      {/* <div className="w-full bg-gray-200 rounded-full h-4 my-4">
         <div
-          className="bg-progress h-4 rounded-full "
+          className="bg-progress h-4 rounded-full"
           style={{ width: `${progress}%` }}
         ></div>
-      </div>
+      </div> */}
       {/* 문제 */}
       <div className="flex flex-col py-3 h-1/2 justify-center">
         <p className="font-bold text-3xl mb-4 text-center">
@@ -93,7 +125,7 @@ const Question: React.FC<QuestionProps> = ({ initialQuiz, initialChoices }) => {
           <div
             key={index}
             className="bg-white rounded-lg text-center justify-center items-center py-2 font-bold"
-            onClick={() => nextQuiz(choice.isAnswer as boolean)}
+            onClick={() => nextQuiz(choice.isAnswer)}
           >
             {choice.word}
           </div>

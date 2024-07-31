@@ -1,16 +1,19 @@
 'use client'
 
 import { useCounterStore } from '@/providers/counter-store-provider'
+import { fetchScore } from '@/app/api/actions'
 
+interface QuizScoreProps {
+  score: {
+    score: number
+    total: number
+  }
+}
 
-const QuizScore: React.FC = () => {
-
-const { count, incrementCount, decrementCount } = useCounterStore(
-    (state) => state,
-  )
+const QuizScore = ({score}:QuizScoreProps) => {
   return (
     <>
-      <p className="font-bold text-5xl mb-4 text-center">{count} / 20</p>
+      <p className="font-bold text-5xl mb-4 text-center">{score.score} / {score.total}</p>
     </>
   );
 };

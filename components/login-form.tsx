@@ -2,12 +2,15 @@
 import { useActionState } from "react";
 import { authenticate } from "@/app/api/actions";
 import Link from "next/link";
+import { useFormState } from "react-dom";
 
 export default function LoginForm() {
-  const [errorMessage, formAction, isPending] = useActionState(
-    authenticate,
-    undefined
-  );
+  // const [errorMessage, formAction, isPending] = useActionState(
+  //   authenticate,
+  //   undefined
+  // );
+  const initialState = { message: "", errors: {} };
+  const [errorMessage, formAction] = useFormState(authenticate, undefined);
   return (
     <>
       <form action={formAction} className="h-2/3">
@@ -45,7 +48,7 @@ export default function LoginForm() {
           <button
             type="submit"
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            aria-disabled={isPending}
+            // aria-disabled={isPending}
           >
             Sign in
           </button>

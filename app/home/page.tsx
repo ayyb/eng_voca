@@ -1,9 +1,8 @@
 // pages/index.js
-import React from "react";
+import React, { useEffect } from "react";
 import { HeartIcon, PencilIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
-import { fetchMember } from "@/app/api/actions";
-import { fetchLikeWord } from "@/app/api/actions";
+import { fetchMember,fetchScore,fetchLikeWord } from "@/app/api/actions";
 import { auth } from "@/auth";
 
 export default async function Page() {
@@ -11,6 +10,8 @@ export default async function Page() {
   const userId = session?.user?.id as string;
   const member = await fetchMember(userId);
   const memeberName = member.name ?? "Guest";
+
+  const userScore = await fetchScore();
 
   const score = 5;
   const total = 30;
@@ -54,7 +55,7 @@ export default async function Page() {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-lg font-bold">Quiz</p>
-                  <p className="text-gray-500 text-sm">Latest 0/10</p>
+                  <p className="text-gray-500 text-sm">Latest {userScore.score}/{userScore.total}</p>
                 </div>
                 <p className="ml-auto">
                   <PencilIcon className="size-6 text-black-500" />

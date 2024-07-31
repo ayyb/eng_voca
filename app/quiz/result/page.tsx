@@ -1,6 +1,8 @@
 import Link from "next/link";
 import QuizScore from "@/ui/quiz/QuizScore";
-export default function ResultPage() {
+import { fetchScore } from "@/app/api/actions";
+export default  async function ResultPage () {
+  const result = await fetchScore();
   return (
     <>
       <div className="p-4 w-full h-full">
@@ -9,7 +11,7 @@ export default function ResultPage() {
           <p className="font-bold text-5xl mb-4 text-center">
             SCORE
           </p>
-          <QuizScore />
+          <QuizScore score={result}/>
           {/* <p className="font-bold text-5xl mb-4 text-center">
             10 / 20
           </p> */}

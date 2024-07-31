@@ -1,20 +1,37 @@
 // LikeWordsList.tsx (클라이언트 컴포넌트)
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LikeWords from "@/components/LikeWords";
 import SortOptions from "@/ui/Likes/SortOptions";
 import { Words, LikeWordsListProps } from "@/app/lib/definitions";
 import { EyeIcon, TrashIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
-import { deleteLikeWord } from "@/app/api/actions";
+import { deleteLikeWord,fetchLikeWord } from "@/app/api/actions";
 
 const LikeWordsList: React.FC<LikeWordsListProps> = ({
-  initialWords,
+  // initialWords,
+  userId,
   memberId,
 }) => {
-  console.log("좋아요 단어리스트", initialWords);
-  const [likeWords, setLikeWords] = useState<Words[]>(initialWords); //likes List
-  console.log("좋아요 단어리스트", likeWords);
+  // console.log("좋아요 단어리스트", initialWords);
+
+  const [likeWords, setLikeWords] = useState<Words[]>([]); //likes List
+  // console.log("좋아요 단어리스트", likeWords);
   const [sortOrder, setSortOrder] = useState<string>("abc");
+
+  useEffect(() => {
+    async function fetchAndSetLikeWords() {
+      try {
+        console.log("멤버아이디", userId); 
+        const words = await fetchLikeWord(userId); // userId 값을 사용하여 데이터 페칭
+        console.log("좋아요 단어리스트", words);
+        setLikeWords(words);
+      } catch (error) {
+        console.error("Error fetching like words:", error);
+      }
+    }
+
+    fetchAndSetLikeWords();
+  }, []);
 
   const handleSortChange = (order: string) => {
     setSortOrder(order);
@@ -48,7 +65,7 @@ const LikeWordsList: React.FC<LikeWordsListProps> = ({
 
   const [isHidden, setIsHidden] = useState(false);
   const handleHidden = () => {
-    console.log('보기')
+    console.log("보기");
   };
 
   return (
@@ -77,7 +94,7 @@ const LikeWordsList: React.FC<LikeWordsListProps> = ({
                 {/* 숨김처리 */}
                 <EyeIcon
                   className=" h-6 text-black-500"
-                  onClick={()=> handleHidden()}
+                  onClick={() => handleHidden()}
                 />
                 {/* 삭제 */}
                 <TrashIcon

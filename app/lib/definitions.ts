@@ -18,6 +18,7 @@ export type MemberInfo = {
   export interface LikeWordsListProps {
     initialWords: Words[];
     memberId:number;
+    userId:string;
   }
 
   export type Voca = {
@@ -44,5 +45,5 @@ export type User = {
 
 export interface Choice {
   word: string;
-  isAnswer?: boolean;
+  isAnswer: boolean;
 }

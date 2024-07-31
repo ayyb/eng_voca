@@ -3,7 +3,6 @@ import { XCircleIcon,CheckCircleIcon } from "@heroicons/react/24/solid";
 
 export default function ReviewPage() {
   //사용자의 퀴즈 결과를 보여준다
-  
   return (
     <>
       <div className="p-3 w-full h-full">
