@@ -24,7 +24,12 @@ const LikeWordsList: React.FC<LikeWordsListProps> = ({
         console.log("멤버아이디", userId); 
         const words = await fetchLikeWord(userId); // userId 값을 사용하여 데이터 페칭
         console.log("좋아요 단어리스트", words);
-        setLikeWords(words);
+        const wordsWithHiddenState = words.map((word) => ({
+          ...word,
+          isHidden: false,
+        }));
+        console.log('wordsWithHiddenState',wordsWithHiddenState);
+        setLikeWords(wordsWithHiddenState);
       } catch (error) {
         console.error("Error fetching like words:", error);
       }
@@ -51,7 +56,7 @@ const LikeWordsList: React.FC<LikeWordsListProps> = ({
   const handleDelete = async (word: Words) => {
     if (confirm("정말 삭제하시겠습니까?")) {
       const targetWord = {
-        word: word.no,
+        word: word.word_no,
         member: memberId,
       };
       await deleteLikeWord(targetWord);
@@ -59,13 +64,18 @@ const LikeWordsList: React.FC<LikeWordsListProps> = ({
     } else {
       return;
     }
-    const newWords = likeWords.filter((likeWord) => likeWord.no !== word.no);
+    const newWords = likeWords.filter((likeWord) => likeWord.word_no !== word.word_no);
     setLikeWords(newWords);
   };
 
   const [isHidden, setIsHidden] = useState(false);
-  const handleHidden = () => {
-    console.log("보기");
+  const handleHidden = (id) => {
+    console.log('id',id)
+    setLikeWords((prev) =>
+      prev.map((word) =>
+        word.word_no === id ? { ...word, isHidden: !word.isHidden } : word
+      )
+    );
   };
 
   return (
@@ -86,7 +96,7 @@ const LikeWordsList: React.FC<LikeWordsListProps> = ({
               <p className="text-xl">{likeWord.word}</p>
               {/* 한글뜻 */}
               {!isHidden ? (
-                <p className="text-xl">{likeWord.definition}</p>
+                <p className="text-xl">{likeWord.word_kr}</p>
               ) : (
                 <p className="text-xl"></p>
               )}
@@ -94,7 +104,7 @@ const LikeWordsList: React.FC<LikeWordsListProps> = ({
                 {/* 숨김처리 */}
                 <EyeIcon
                   className=" h-6 text-black-500"
-                  onClick={() => handleHidden()}
+                  onClick={() => handleHidden(likeWord.word_no)}
                 />
                 {/* 삭제 */}
                 <TrashIcon

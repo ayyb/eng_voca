@@ -1,7 +1,7 @@
 "use server";
 import { QueryResultRow, sql } from "@vercel/postgres";
 import { Word } from "@/app/lib/types";
-import { Words, Voca } from "@/app/lib/definitions";
+import { Words, Voca,QuizResult } from "@/app/lib/definitions";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { MemberInfo,Choice } from "../lib/definitions";
@@ -10,8 +10,9 @@ import { signIn,auth } from "@/auth";
 import { AuthError } from "next-auth";
 
 type Answers = {
-  correctAnswer: string;
+  correctanswer: string;
   sentence: string;
+  example_kr: string;
 };
 
 export async function createMember(
@@ -83,7 +84,7 @@ export async function fetchLevelWords(
         EXISTS (
           SELECT 1 
           FROM likes 
-          WHERE likes.voca_id = vocas.no 
+          WHERE likes.voca_id = vocas.word_no 
           AND likes.member_id = ${memberId}
         ) as liked
       FROM vocas
@@ -97,7 +98,7 @@ export async function fetchLevelWords(
         EXISTS (
           SELECT 1 
           FROM likes 
-          WHERE likes.voca_id = vocas.no 
+          WHERE likes.voca_id = vocas.word_no 
           AND likes.member_id = ${memberId}
         ) as liked
       FROM vocas
@@ -176,11 +177,11 @@ export async function fetchWord(vocaId: number): Promise<Voca> {
 export async function fetchLikeWord(member: string): Promise<Words[]> {
   try {
     const data = await sql<Words>`
-  SELECT vocas.no, vocas.word, vocas.definition, likes.liked_at
+  SELECT vocas.word_no, vocas.word, vocas.definition, likes.liked_at, vocas.word_kr, vocas.example, vocas.example_kr
 FROM
   likes
 JOIN
-  vocas ON likes.voca_id = vocas.no
+  vocas ON likes.voca_id = vocas.word_no
 WHERE
   likes.member_id = (select no from members where id= ${member});
     `;
@@ -220,19 +221,13 @@ export async function authenticate(
 export async function fetchQuiz() {
   try {
     const data = await sql<Answers>`
-      SELECT word AS correctAnswer, example AS sentence
+      SELECT word AS correctanswer, example AS sentence, example_kr
       FROM vocas
       ORDER BY RANDOM()
       LIMIT 10;
     `;
 
-    return data.rows.map((row: Answers) => {
-      const regex = new RegExp(`/${row.correctAnswer}/`, 'gi');
-      return {
-        ...row,
-        sentence: row.sentence.replace(regex, '___'),
-      };
-    });
+    return data.rows;
   } catch (error) {
     throw new Error("error");
   }
@@ -269,13 +264,15 @@ export async function fetchScore() {
   return result;
 }
 
-// let reviewQuizList = [];
+let reviewQuizList:QuizResult[] = [];
 
-// export async function setQuizList(obj) {// 리뷰를 위한 데이터
-//   reviewQuizList = obj;
-// }
+export async function setQuizList(content : QuizResult) {// 리뷰를 위한 데이터
+  console.log('추가됨')
+  reviewQuizList.push(content) ;
+  console.log(reviewQuizList);
+}
 
-// export async function getQuizList() {
-//   console.log('리턴값',reviewQuizList);
-//   return reviewQuizList;
-// }
+export async function getQuizList() {
+  console.log('리턴값',reviewQuizList);
+  return reviewQuizList;
+}

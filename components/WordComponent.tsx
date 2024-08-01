@@ -8,7 +8,7 @@ import { addLikeWord, deleteLikeWord } from "@/app/api/actions";
 
 interface WordComponentProps {
     currentWord: {
-        no: number;
+        word_no: number;
         liked: boolean;
     };
     memberId: number;
@@ -25,7 +25,7 @@ const WordComponent = ({ currentWord, memberId } : WordComponentProps) => {
 
   const handleClick = async () => {
     const Likes = {
-      word: currentWord.no,
+      word: currentWord.word_no,
       member: memberId,
     };
 

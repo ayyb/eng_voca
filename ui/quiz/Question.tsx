@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { fetchChoiceWords, scoreCalculation } from "@/app/api/actions";
+import { fetchChoiceWords, scoreCalculation,setQuizList } from "@/app/api/actions";
 import { useRouter } from "next/navigation";
 
 // Fisher-Yates Shuffle 알고리즘을 사용하여 배열을 랜덤으로 섞는 함수
@@ -15,6 +15,7 @@ const shuffleArray = (array: Choice[]) => {
 interface Quiz {
   correctanswer: string;
   sentence: string;
+  example_kr:string;
 }
 
 interface Choice {
@@ -43,7 +44,7 @@ const Question: React.FC<QuestionProps> = ({ initialQuiz, initialChoices }) => {
   const [reviewData, setReviewData] = useState([{sentence:"", answer:false}]);
 
   useEffect(() => {}, [currentIndex]);
-  const nextQuiz = (isAnswer: boolean) => {
+  const nextQuiz = (isAnswer: boolean,clicked:string) => {
     console.log("왜 언디파인드?",isAnswer);
     // 만약 답을 클릭했을경우 초록색으로 표시
     if (isAnswer) {
@@ -55,7 +56,12 @@ const Question: React.FC<QuestionProps> = ({ initialQuiz, initialChoices }) => {
     }
 
     //클릭하면 리뷰데이터에 추가
-    setReviewData([...reviewData, {sentence:quiz[currentIndex].sentence, answer:isAnswer}]);
+
+    setQuizList({example: initialQuiz[currentIndex].sentence,
+      example_kr: initialQuiz[currentIndex].example_kr,
+      answer: initialQuiz[currentIndex].correctanswer,
+      choice_answer: clicked});
+    // setReviewData([...reviewData, {sentence:quiz[currentIndex].sentence, answer:isAnswer}]);
     
 
     const nextIndex = (currentIndex + 1) % quiz.length;
@@ -72,6 +78,17 @@ const Question: React.FC<QuestionProps> = ({ initialQuiz, initialChoices }) => {
   };
 
   useEffect(() => {
+    const updateQuiz = quiz.map((row: any) => {
+      // 정규식을 올바르게 생성합니다.
+      const regex = new RegExp(row.correctanswer, 'gi');
+      return {
+        ...row,
+        // replace 메서드를 사용하여 문장을 업데이트합니다.
+        sentence: row.sentence.replace(regex, '___'),
+      };
+    });
+    setQuiz(updateQuiz);
+
     if (isQuizFinished) {
       console.log("최종점수", score);
       scoreCalculation(score, quiz.length);
@@ -117,7 +134,7 @@ const Question: React.FC<QuestionProps> = ({ initialQuiz, initialChoices }) => {
         <p className="font-bold text-3xl mb-4 text-center">
           {quiz[currentIndex].sentence}
         </p>
-        <p className="text-center">일하기 위해 살래, 살기 위해 일할래?</p>
+        <p className="text-center">{quiz[currentIndex].example_kr}</p>
       </div>
       {/* 선택지 */}
       <div className="flex flex-col space-y-4 w-full">
@@ -125,7 +142,7 @@ const Question: React.FC<QuestionProps> = ({ initialQuiz, initialChoices }) => {
           <div
             key={index}
             className="bg-white rounded-lg text-center justify-center items-center py-2 font-bold"
-            onClick={() => nextQuiz(choice.isAnswer)}
+            onClick={() => nextQuiz(choice.isAnswer,choice.word)}
           >
             {choice.word}
           </div>

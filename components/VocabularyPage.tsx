@@ -38,14 +38,14 @@ export default function VocabularyPage({ words,memberId }: VocabularyPageProps) 
     if (!currentWord.liked) {
       //좋아요 한 단어에 추가
       const Likes = {
-        word: currentWord.no,
+        word: currentWord.word_no,
         member: memberId,
       };
       await addLikeWord(Likes);
     } else {
       //좋아요 취소
       const Likes = {
-        word: currentWord.no,
+        word: currentWord.word_no,
         member: memberId,
       };
       await deleteLikeWord(Likes);
@@ -85,13 +85,15 @@ export default function VocabularyPage({ words,memberId }: VocabularyPageProps) 
         {/* 영어단어 */}
         <div className="flex justify-center items-center flex-col h-1/2">
           <p className="font-bold text-6xl m-5">{currentWord.word}</p>
-          <p className="m-5">{currentWord.part_of_speech}</p>
+          <p>None</p>
+          <p className="m-5">[{currentWord.pronunce}]</p>
           {/* 한글뜻 */}
-          <p className="font-bold text-4xl m-8">{currentWord.definition}</p>
+          <p className="font-bold text-4xl m-8">{currentWord.word_kr}</p>
           {/* 예문 */}
           <div className="flex justify-between w-full px-4">
             <div className="mt-2">
               <p>{currentWord.example}</p>
+              <p>{currentWord.example_kr}</p>
               <p>{currentWord.translation}</p>
             </div>
             <p className="flex justify-center items-center">

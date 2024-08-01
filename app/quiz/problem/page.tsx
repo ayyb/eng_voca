@@ -33,14 +33,14 @@ export default async function ProblemPage() {
     };
   });
   //랜덤으로 섞어서 선택리 리스트 초기화
-  const choices = [...updatedAnswer, { word: updateQuiz[0].correctanswer, isAnswer: true }];
+  const choices = [...updatedAnswer, { word: quiz[0].correctanswer, isAnswer: true }];
   const shuffledChoices = shuffleArray(choices);
   console.log('선택지 리스트',shuffledChoices);
   return (
     <>
       <div className="p-4 w-full h-full">
         {/* 문제 */}
-        <Question initialQuiz={updateQuiz} initialChoices={shuffledChoices} />
+        <Question initialQuiz={quiz} initialChoices={shuffledChoices} />
       </div>
     </>
   );
