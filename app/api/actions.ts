@@ -260,19 +260,59 @@ export async function scoreCalculation(correct: number, sum: number) {
 }
 
 export async function fetchScore() {
-  console.log('리턴값',result);
   return result;
 }
 
 let reviewQuizList:QuizResult[] = [];
 
 export async function setQuizList(content : QuizResult) {// 리뷰를 위한 데이터
-  console.log('추가됨')
-  reviewQuizList.push(content) ;
-  console.log(reviewQuizList);
+  // answers 배열을 JSON 문자열로 변환
+  const answersJson = JSON.stringify(content.answers);
+  try{
+    await sql `
+        INSERT INTO QuizResults (userId, score, total_count, answers)
+        VALUES (${content.userId}, ${content.score}, ${content.total_count}, ${answersJson})
+        RETURNING *;
+      `
+      return { message: `success` };
+  }catch(error){
+    console.error('Error saving quiz result:');
+  }
+  // console.log('추가됨')
+  // reviewQuizList.push(content);
+  // console.log(reviewQuizList);
+}
+
+export async function startNewQuiz() {
+  // 퀴즈를 시작할 때 이전 데이터 초기화
+  reviewQuizList = [];
+  console.log('새 퀴즈 시작, 리스트 초기화됨');
+  console.log('초기화됨?',reviewQuizList)
+  // 이후 퀴즈를 시작하는 로직 추가
 }
 
 export async function getQuizList() {
+  try{
+    const data = await sql`
+      SELECT answers FROM QuizResults ORDER BY created_at DESC limit 1;
+      `;
+      return data.rows[0].answers;
+  }catch(error){
+    console.error('Error fetching quiz result:', error);
+  }
   console.log('리턴값',reviewQuizList);
   return reviewQuizList;
 }
+
+export async function updatePassword(pw: string | number, id:string) {
+  try {
+    await sql<Choice>`
+      update members set pw = ${pw} where id = ${id};
+    `;
+
+    return { message: `success` };
+  } catch (error) {
+    throw new Error("error");
+  }
+}
+

@@ -20,7 +20,7 @@ export default function LikeWords({ likeWord,memberId }: LikeWordsProps) {
   const handleDelete = async() => {
     if(confirm("정말 삭제하시겠습니까?")){
     const targetWord ={
-      word: likeWord.no,
+      word: likeWord.word_no,
       member: memberId,
     }
     await deleteLikeWord(targetWord);

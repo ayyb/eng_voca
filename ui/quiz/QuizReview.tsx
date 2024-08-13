@@ -10,6 +10,7 @@ interface QuizReviewProps {
 }
 
 const QuizReview = ({ item }: QuizReviewProps) => {
+  console.log(item);
   return (
     <>
       <div className="bg-white rounded-xl flex flex-col p-4 mb-4">

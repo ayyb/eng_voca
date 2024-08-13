@@ -68,9 +68,9 @@ const LikeWordsList: React.FC<LikeWordsListProps> = ({
     setLikeWords(newWords);
   };
 
-  const [isHidden, setIsHidden] = useState(false);
-  const handleHidden = (id) => {
+  const handleHidden = (id:number) => {
     console.log('id',id)
+    console.log('likeWords',likeWords);
     setLikeWords((prev) =>
       prev.map((word) =>
         word.word_no === id ? { ...word, isHidden: !word.isHidden } : word
@@ -89,13 +89,13 @@ const LikeWordsList: React.FC<LikeWordsListProps> = ({
       </div>
       <SortOptions onSortChange={handleSortChange} />
       <div className="flex flex-col space-y-4 mt-5 mb-10 w-full">
-        {likeWords.map((likeWord) => (
-          <div className="bg-white rounded-sm h-14">
+        {likeWords.map((likeWord,index) => (
+          <div className="bg-white rounded-sm h-14" key={index}>
             <div className="p-3 grid grid-cols-3 gap-6">
               {/* 영어단어 */}
               <p className="text-xl">{likeWord.word}</p>
               {/* 한글뜻 */}
-              {!isHidden ? (
+              {!likeWord.isHidden ? (
                 <p className="text-xl">{likeWord.word_kr}</p>
               ) : (
                 <p className="text-xl"></p>

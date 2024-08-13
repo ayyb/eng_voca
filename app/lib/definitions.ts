@@ -20,7 +20,6 @@ export type Words = {
 };
 
 export interface LikeWordsListProps {
-  initialWords: Words[];
   memberId: number;
   userId: string;
 }
@@ -51,9 +50,23 @@ export interface Choice {
   isAnswer: boolean;
 }
 
-export interface QuizResult {
+export interface QuizResultDetail {
   example: string;
   example_kr: string;
   answer: string;
   choice_answer: string;
+}
+
+export interface QuizAnswer {
+  example: string;
+  example_kr: string;
+  answer: string;
+  choice_answer: string;
+}
+
+export interface QuizResult {
+  userId: string;
+  score: number;
+  total_count: number;
+  answers: QuizAnswer[];
 }

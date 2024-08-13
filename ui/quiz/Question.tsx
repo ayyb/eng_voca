@@ -1,7 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import { fetchChoiceWords, scoreCalculation,setQuizList } from "@/app/api/actions";
+import {
+  fetchChoiceWords,
+  scoreCalculation,
+  setQuizList,
+} from "@/app/api/actions";
 import { useRouter } from "next/navigation";
+import { QuizResultDetail } from "@/app/lib/definitions";
 
 // Fisher-Yates Shuffle 알고리즘을 사용하여 배열을 랜덤으로 섞는 함수
 const shuffleArray = (array: Choice[]) => {
@@ -15,7 +20,7 @@ const shuffleArray = (array: Choice[]) => {
 interface Quiz {
   correctanswer: string;
   sentence: string;
-  example_kr:string;
+  example_kr: string;
 }
 
 interface Choice {
@@ -35,20 +40,24 @@ const Question: React.FC<QuestionProps> = ({ initialQuiz, initialChoices }) => {
   const [isQuizFinished, setIsQuizFinished] = useState(false);
   const [quiz, setQuiz] = useState(initialQuiz);
   const [choices, setChoices] = useState(initialChoices);
-  console.log("초기값",choices);
+  const [answersList, setAnswersList] = useState<QuizResultDetail[]>([]);
+  console.log("초기값", choices);
   const [score, setScore] = useState(0);
   console.log("이니셜 답지", initialChoices);
   console.log("점수", score);
-  
-  //리뷰를 위한 정보
-  const [reviewData, setReviewData] = useState([{sentence:"", answer:false}]);
 
-  useEffect(() => {}, [currentIndex]);
-  const nextQuiz = (isAnswer: boolean,clicked:string) => {
-    console.log("왜 언디파인드?",isAnswer);
+  //리뷰를 위한 정보
+  const [reviewData, setReviewData] = useState([
+    { sentence: "", answer: false },
+  ]);
+
+  useEffect(() => {
+  }, [currentIndex]);
+  const nextQuiz = (isAnswer: boolean, clicked: string) => {
+    // console.log("왜 언디파인드?",isAnswer);
     // 만약 답을 클릭했을경우 초록색으로 표시
     if (isAnswer) {
-      setScore(prevScore => prevScore + 1);
+      setScore((prevScore) => prevScore + 1);
       console.log(score);
       alert("정답입니다!");
     } else {
@@ -56,17 +65,25 @@ const Question: React.FC<QuestionProps> = ({ initialQuiz, initialChoices }) => {
     }
 
     //클릭하면 리뷰데이터에 추가
-
-    setQuizList({example: initialQuiz[currentIndex].sentence,
+    setAnswersList([...answersList, {
+      example: initialQuiz[currentIndex].sentence,
       example_kr: initialQuiz[currentIndex].example_kr,
       answer: initialQuiz[currentIndex].correctanswer,
-      choice_answer: clicked});
-    // setReviewData([...reviewData, {sentence:quiz[currentIndex].sentence, answer:isAnswer}]);
-    
+      choice_answer: clicked,
+    }]);
+
 
     const nextIndex = (currentIndex + 1) % quiz.length;
     if (currentIndex === quiz.length - 1) {
       console.log("최종점수", score);
+      const reviewData = {
+        userId: "1",
+        score: score,
+        total_count: quiz.length,
+        answers: answersList,
+      };
+
+      setQuizList(reviewData);
       setIsQuizFinished(true);
       alert("끝났습니다.");
       //결과페이지로 이동 QuizResult
@@ -80,11 +97,11 @@ const Question: React.FC<QuestionProps> = ({ initialQuiz, initialChoices }) => {
   useEffect(() => {
     const updateQuiz = quiz.map((row: any) => {
       // 정규식을 올바르게 생성합니다.
-      const regex = new RegExp(row.correctanswer, 'gi');
+      const regex = new RegExp(row.correctanswer, "gi");
       return {
         ...row,
         // replace 메서드를 사용하여 문장을 업데이트합니다.
-        sentence: row.sentence.replace(regex, '___'),
+        sentence: row.sentence.replace(regex, "___"),
       };
     });
     setQuiz(updateQuiz);
@@ -108,7 +125,7 @@ const Question: React.FC<QuestionProps> = ({ initialQuiz, initialChoices }) => {
     const shuffledChoices = shuffleArray(newChoices);
     setChoices(shuffledChoices);
   };
-  const progress = ((currentIndex) / quiz.length) * 100;
+  const progress = (currentIndex / quiz.length) * 100;
   return (
     <>
       {/* 진행바 */}
@@ -117,11 +134,11 @@ const Question: React.FC<QuestionProps> = ({ initialQuiz, initialChoices }) => {
       </h2>
       {/* 프로그래스바 */}
       <div className="w-full bg-gray-200 rounded-full h-6 my-4">
-          <div
-            className="bg-progress h-6 rounded-full"
-            style={{ width: `${progress}%` }}
-          ></div>
-        </div>
+        <div
+          className="bg-progress h-6 rounded-full"
+          style={{ width: `${progress}%` }}
+        ></div>
+      </div>
       {/* 프로그래스바 */}
       {/* <div className="w-full bg-gray-200 rounded-full h-4 my-4">
         <div
@@ -142,7 +159,7 @@ const Question: React.FC<QuestionProps> = ({ initialQuiz, initialChoices }) => {
           <div
             key={index}
             className="bg-white rounded-lg text-center justify-center items-center py-2 font-bold"
-            onClick={() => nextQuiz(choice.isAnswer,choice.word)}
+            onClick={() => nextQuiz(choice.isAnswer, choice.word)}
           >
             {choice.word}
           </div>
