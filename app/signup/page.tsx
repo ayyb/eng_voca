@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Member } from "@/app/lib/schemas";
+import { useFormState } from "react-dom";
 // import { useActionState } from "react";
 import { createMember } from "@/app/api/actions";
 
@@ -9,6 +10,7 @@ export default function SignUpPage() {
     message: "",
   };
   // const [state, formAction] = useActionState(createMember, initialState);
+  const [state, formAction] = useFormState(createMember, initialState);
 
   const [formData, setFormData] = useState<Member>({
     id: "",
@@ -42,7 +44,7 @@ export default function SignUpPage() {
         <div className="flex h-1/3">
           <p className="text-6xl font-bold items-center flex">Sign up</p>
         </div>
-        <form action={createMember}>
+        <form action={formAction}>
           <div className="space-y-4 flex-1 mb-20">
             <div className="flex flex-col w-full">
               <input

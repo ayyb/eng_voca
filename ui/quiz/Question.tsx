@@ -18,8 +18,8 @@ const shuffleArray = (array: Choice[]) => {
 };
 
 interface Quiz {
-  correctanswer: string;
-  sentence: string;
+  word: string;
+  example: string;
   example_kr: string;
 }
 
@@ -33,10 +33,9 @@ interface QuestionProps {
   initialChoices: Choice[];
 }
 
-const Question: React.FC<QuestionProps> = ({ initialQuiz, initialChoices }) => {
+const Question = ({ initialQuiz, initialChoices } : QuestionProps) => {
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
-  // const [isHidden, setIsHidden] = useState(false);
   const [isQuizFinished, setIsQuizFinished] = useState(false);
   const [quiz, setQuiz] = useState(initialQuiz);
   const [choices, setChoices] = useState(initialChoices);
@@ -45,11 +44,6 @@ const Question: React.FC<QuestionProps> = ({ initialQuiz, initialChoices }) => {
   const [score, setScore] = useState(0);
   console.log("이니셜 답지", initialChoices);
   console.log("점수", score);
-
-  //리뷰를 위한 정보
-  const [reviewData, setReviewData] = useState([
-    { sentence: "", answer: false },
-  ]);
 
   useEffect(() => {
   }, [currentIndex]);
@@ -65,20 +59,23 @@ const Question: React.FC<QuestionProps> = ({ initialQuiz, initialChoices }) => {
     }
 
     //클릭하면 리뷰데이터에 추가
-    setAnswersList([...answersList, {
-      example: initialQuiz[currentIndex].sentence,
-      example_kr: initialQuiz[currentIndex].example_kr,
-      answer: initialQuiz[currentIndex].correctanswer,
-      choice_answer: clicked,
-    }]);
+    setAnswersList((prev) => [
+      ...prev,
+      {
+        example: quiz[currentIndex].example,
+        example_kr: quiz[currentIndex].example_kr,
+        answer: quiz[currentIndex].word,
+        choice_answer: clicked,
+      },
+    ]);
 
 
     const nextIndex = (currentIndex + 1) % quiz.length;
     if (currentIndex === quiz.length - 1) {
-      console.log("최종점수", score);
+      const finalScore = score + (isAnswer ? 1 : 0);
       const reviewData = {
         userId: "1",
-        score: score,
+        score: finalScore,
         total_count: quiz.length,
         answers: answersList,
       };
@@ -120,7 +117,7 @@ const Question: React.FC<QuestionProps> = ({ initialQuiz, initialChoices }) => {
     }));
     const newChoices = [
       ...updatedAnswers,
-      { word: quiz[currentIndex + 1].correctanswer, isAnswer: true },
+      { word: quiz[currentIndex + 1].word, isAnswer: true },
     ];
     const shuffledChoices = shuffleArray(newChoices);
     setChoices(shuffledChoices);
@@ -149,7 +146,7 @@ const Question: React.FC<QuestionProps> = ({ initialQuiz, initialChoices }) => {
       {/* 문제 */}
       <div className="flex flex-col py-3 h-1/2 justify-center">
         <p className="font-bold text-3xl mb-4 text-center">
-          {quiz[currentIndex].sentence}
+          {quiz[currentIndex].example}
         </p>
         <p className="text-center">{quiz[currentIndex].example_kr}</p>
       </div>

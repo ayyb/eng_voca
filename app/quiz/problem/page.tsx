@@ -1,5 +1,5 @@
-import { fetchQuiz } from "@/app/api/actions";
-import { fetchChoiceWords } from "@/app/api/actions";
+'use server'
+import { fetchQuiz,fetchChoiceWords } from "@/app/api/actions";
 import Question from "@/ui/quiz/Question";
 import { Choice } from "@/app/lib/definitions";
 
@@ -15,16 +15,6 @@ const shuffleArray = (array: Choice[]) => {
 
 export default async function ProblemPage() {
   const quiz = await fetchQuiz();
-  const updateQuiz = quiz.map((row: any) => {
-    // 정규식을 올바르게 생성합니다.
-    const regex = new RegExp(row.correctanswer, 'gi');
-    return {
-      ...row,
-      // replace 메서드를 사용하여 문장을 업데이트합니다.
-      sentence: row.sentence.replace(regex, '___'),
-    };
-  });
-  console.log('퀴즈 리스트',updateQuiz);
   const answers = await fetchChoiceWords();
   const updatedAnswer = answers.map((answer : Choice) => {
     return {
@@ -33,7 +23,7 @@ export default async function ProblemPage() {
     };
   });
   //랜덤으로 섞어서 선택리 리스트 초기화
-  const choices = [...updatedAnswer, { word: quiz[0].correctanswer, isAnswer: true }];
+  const choices = [...updatedAnswer, { word: quiz[0].word, isAnswer: true }];
   const shuffledChoices = shuffleArray(choices);
   console.log('선택지 리스트',shuffledChoices);
   return (

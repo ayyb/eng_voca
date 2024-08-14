@@ -1,7 +1,6 @@
-"use server";
 import { QueryResultRow, sql } from "@vercel/postgres";
 import { Word } from "@/app/lib/types";
-import { Words, Voca,QuizResult } from "@/app/lib/definitions";
+import { Words, Voca,QuizResult,Answers } from "@/app/lib/definitions";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { MemberInfo,Choice } from "../lib/definitions";
@@ -9,11 +8,7 @@ import { MemberInfo,Choice } from "../lib/definitions";
 import { signIn,auth } from "@/auth";
 import { AuthError } from "next-auth";
 
-type Answers = {
-  correctanswer: string;
-  sentence: string;
-  example_kr: string;
-};
+
 
 export async function createMember(
   prevState: {
@@ -221,7 +216,7 @@ export async function authenticate(
 export async function fetchQuiz() {
   try {
     const data = await sql<Answers>`
-      SELECT word AS correctanswer, example AS sentence, example_kr
+      SELECT word, example, example_kr
       FROM vocas
       ORDER BY RANDOM()
       LIMIT 10;

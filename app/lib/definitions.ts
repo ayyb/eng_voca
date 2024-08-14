@@ -70,3 +70,9 @@ export interface QuizResult {
   total_count: number;
   answers: QuizAnswer[];
 }
+
+export interface Answers {
+  word: string;
+  example: string;
+  example_kr: string;
+}
