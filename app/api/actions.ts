@@ -1,3 +1,4 @@
+'use server' // authV5 사용시 필요함.
 import { QueryResultRow, sql } from "@vercel/postgres";
 import { Word } from "@/app/lib/types";
 import { Words, Voca,QuizResult,Answers } from "@/app/lib/definitions";
