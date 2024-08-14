@@ -98,7 +98,7 @@ const Question = ({ initialQuiz, initialChoices } : QuestionProps) => {
       return {
         ...row,
         // replace 메서드를 사용하여 문장을 업데이트합니다.
-        sentence: row.sentence.replace(regex, "___"),
+        word: row.word.replace(regex, "___"),
       };
     });
     setQuiz(updateQuiz);
