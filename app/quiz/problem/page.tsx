@@ -15,6 +15,16 @@ const shuffleArray = (array: Choice[]) => {
 
 export default async function ProblemPage() {
   const quiz = await fetchQuiz();
+  const updateQuiz = quiz.map((row: any) => {
+    // 정규식을 올바르게 생성합니다.
+    const regex = new RegExp(row.word, "gi");
+    return {
+      ...row,
+      // replace 메서드를 사용하여 문장을 업데이트합니다.
+      example: row.example.replace(regex, "___"),
+    };
+  });
+  console.log('퀴즈',updateQuiz);
   const answers = await fetchChoiceWords();
   const updatedAnswer = answers.map((answer : Choice) => {
     return {
@@ -30,7 +40,7 @@ export default async function ProblemPage() {
     <>
       <div className="p-4 w-full h-full">
         {/* 문제 */}
-        <Question initialQuiz={quiz} initialChoices={shuffledChoices} />
+        <Question initialQuiz={updateQuiz} initialChoices={shuffledChoices} />
       </div>
     </>
   );

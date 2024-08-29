@@ -21,7 +21,6 @@ export type Words = {
 
 export interface LikeWordsListProps {
   memberId: number;
-  userId: string;
 }
 
 export type Voca = {
@@ -65,7 +64,7 @@ export interface QuizAnswer {
 }
 
 export interface QuizResult {
-  userId: string;
+  userId?: string;
   score: number;
   total_count: number;
   answers: QuizAnswer[];

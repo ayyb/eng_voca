@@ -24,6 +24,9 @@ export default function VocabularyPage({ words,memberId }: VocabularyPageProps) 
 
   const handleNext = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % words.length);
+    //user checked word list - server action
+    
+
   };
 
   const handlePrev = () => {

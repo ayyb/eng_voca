@@ -1,26 +1,9 @@
 "use client";
-import { fetchMember,updatePassword } from "@/app/api/actions";
-import { useState, useEffect, ReactEventHandler } from "react";
+import { updatePassword } from "@/app/api/actions";
+import { useState } from "react";
 import { MemberInfo } from "@/app/lib/definitions";
 
-const getMemberLevelText = (level: Number) => {
-  switch (level) {
-    case 1:
-      return "Beginner";
-    case 2:
-      return "Intermediate";
-    case 3:
-      return "Advanced";
-    default:
-      return "Unknown";
-  }
-};
-interface MemberDetailProps {
-  userId: string;
-}
-
-const MemberDetail = ({ userId }: MemberDetailProps) => {
-  console.log("userId", userId);
+const MemberDetail = () => {
   // useState 훅을 사용하여 상태 관리
   const [isHidden, setIsHidden] = useState(true);
   const [memberInfo, setMemberInfo] = useState<MemberInfo | null>(null);
@@ -29,29 +12,11 @@ const MemberDetail = ({ userId }: MemberDetailProps) => {
   const changePasswordOpen = () => {
     setIsHidden(!isHidden);
   };
-  useEffect(() => {
-    async function fetchData() {
-      
-      if (userId) {
-        const info = await fetchMember(userId);
-        console.log("member 정보", info);
-        setMemberInfo(info);
-      }
-    }
-    fetchData();
-  }, []);
-
-  if (!memberInfo) {
-    //member가 null이면 조건부 렌더링
-    return <div>Loading...</div>;
-  }
   
   //비밀번호 변경
   const changePassword = async() => {
     //비밀번호 변경 로직
-    const id = userId;
-    console.log(password)
-    const {message} = await updatePassword(password,id);
+    const {message} = await updatePassword(password);
     if(message === 'success') {
       alert('변경 되었습니다.')
     } else {
@@ -64,45 +29,6 @@ const MemberDetail = ({ userId }: MemberDetailProps) => {
   }
   return (
     <>
-      <div className="flex flex-col w-full space-y-4 flex-1 mb-9">
-        {/* name, id, levels, member since */}
-        <div className="flex flex-col w-full">
-          <label className="text-lg">Name</label>
-          <input
-            type="text"
-            className="border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
-            value={memberInfo.name}
-            readOnly
-          />
-        </div>
-        <div className="flex flex-col w-full">
-          <label className="text-lg">ID</label>
-          <input
-            type="text"
-            className="border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
-            value={memberInfo.id}
-            readOnly
-          />
-        </div>
-        <div className="flex flex-col w-full">
-          <label className="text-lg">Levels</label>
-          <input
-            type="text"
-            className="border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
-            value={getMemberLevelText(memberInfo.member_level)}
-            readOnly
-          />
-        </div>
-        <div className="flex flex-col w-full">
-          <label className="text-lg">Member Since</label>
-          <input
-            type="text"
-            className="border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
-            value={memberInfo.created_at}
-            readOnly
-          />
-        </div>
-      </div>
       <button
         className="bg-black text-white p-2 rounded-lg mt-4 flex mx-auto"
         onClick={() => {

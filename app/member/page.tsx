@@ -19,13 +19,51 @@ const getMemberLevelText = (level: Number) => {
 // MemberInfo 타입 정의
 
 export default async function MemberPage() {
-  const session = await auth();
-  const userId = session?.user?.id || "";
+  const memberInfo = await fetchMember();
   return (
     <>
       <div className="p-3 w-full h-full ">
         <p className="text-4xl font-bold mb-9">My Page</p>
-        <MemberDetail userId={userId}/>
+        <div className="flex flex-col w-full space-y-4 flex-1 mb-9">
+        {/* name, id, levels, member since */}
+        <div className="flex flex-col w-full">
+          <label className="text-lg">Name</label>
+          <input
+            type="text"
+            className="border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
+            value={memberInfo.name}
+            readOnly
+          />
+        </div>
+        <div className="flex flex-col w-full">
+          <label className="text-lg">ID</label>
+          <input
+            type="text"
+            className="border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
+            value={memberInfo.id}
+            readOnly
+          />
+        </div>
+        <div className="flex flex-col w-full">
+          <label className="text-lg">Levels</label>
+          <input
+            type="text"
+            className="border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
+            value={getMemberLevelText(memberInfo.member_level)}
+            readOnly
+          />
+        </div>
+        <div className="flex flex-col w-full">
+          <label className="text-lg">Member Since</label>
+          <input
+            type="text"
+            className="border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
+            value={memberInfo.created_at}
+            readOnly
+          />
+        </div>
+      </div>
+        <MemberDetail/>
         {/* <div className="flex flex-col w-full space-y-4 flex-1 mb-9">
           <div className="flex flex-col w-full">
             <label className="text-lg">Name</label>

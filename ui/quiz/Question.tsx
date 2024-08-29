@@ -33,22 +33,21 @@ interface QuestionProps {
   initialChoices: Choice[];
 }
 
-const Question = ({ initialQuiz, initialChoices } : QuestionProps) => {
+const Question = ({ initialQuiz, initialChoices }: QuestionProps) => {
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isQuizFinished, setIsQuizFinished] = useState(false);
   const [quiz, setQuiz] = useState(initialQuiz);
   const [choices, setChoices] = useState(initialChoices);
   const [answersList, setAnswersList] = useState<QuizResultDetail[]>([]);
-  console.log("초기값", choices);
   const [score, setScore] = useState(0);
-  console.log("이니셜 답지", initialChoices);
-  console.log("점수", score);
 
-  useEffect(() => {
-  }, [currentIndex]);
+  // useEffect(() => {
+  //   fetchNewChoices();
+  // }, []);
+
+
   const nextQuiz = (isAnswer: boolean, clicked: string) => {
-    // console.log("왜 언디파인드?",isAnswer);
     // 만약 답을 클릭했을경우 초록색으로 표시
     if (isAnswer) {
       setScore((prevScore) => prevScore + 1);
@@ -69,12 +68,10 @@ const Question = ({ initialQuiz, initialChoices } : QuestionProps) => {
       },
     ]);
 
-
-    const nextIndex = (currentIndex + 1) % quiz.length;
+    // 1. 퀴즈 종료 조건 먼저 확인
     if (currentIndex === quiz.length - 1) {
       const finalScore = score + (isAnswer ? 1 : 0);
       const reviewData = {
-        userId: "1",
         score: finalScore,
         total_count: quiz.length,
         answers: answersList,
@@ -85,24 +82,15 @@ const Question = ({ initialQuiz, initialChoices } : QuestionProps) => {
       alert("끝났습니다.");
       //결과페이지로 이동 QuizResult
       router.push("/quiz/result");
-    } else {
-      setCurrentIndex(nextIndex);
-      fetchNewChoices();
     }
+
+    // 2. 퀴즈가 끝나지 않았다면 currentIndex 업데이트 및 다음 문제 로직 실행
+    const nextIndex = (currentIndex + 1) % quiz.length;
+    setCurrentIndex(nextIndex);
+    fetchNewChoices();
   };
 
   useEffect(() => {
-    const updateQuiz = quiz.map((row: any) => {
-      // 정규식을 올바르게 생성합니다.
-      const regex = new RegExp(row.correctanswer, "gi");
-      return {
-        ...row,
-        // replace 메서드를 사용하여 문장을 업데이트합니다.
-        word: row.word.replace(regex, "___"),
-      };
-    });
-    setQuiz(updateQuiz);
-
     if (isQuizFinished) {
       console.log("최종점수", score);
       scoreCalculation(score, quiz.length);
@@ -110,18 +98,24 @@ const Question = ({ initialQuiz, initialChoices } : QuestionProps) => {
   }, [isQuizFinished, score]);
 
   const fetchNewChoices = async () => {
+    //랜덤한 선택지를 가져옴
     const newAnswers = await fetchChoiceWords();
+
+
     const updatedAnswers = newAnswers.map((answer: Choice) => ({
       word: answer.word,
       isAnswer: false,
     }));
     const newChoices = [
       ...updatedAnswers,
-      { word: quiz[currentIndex + 1].word, isAnswer: true },
+      { word: quiz[currentIndex].word, isAnswer: true },
     ];
     const shuffledChoices = shuffleArray(newChoices);
     setChoices(shuffledChoices);
   };
+
+
+
   const progress = (currentIndex / quiz.length) * 100;
   return (
     <>
@@ -136,13 +130,6 @@ const Question = ({ initialQuiz, initialChoices } : QuestionProps) => {
           style={{ width: `${progress}%` }}
         ></div>
       </div>
-      {/* 프로그래스바 */}
-      {/* <div className="w-full bg-gray-200 rounded-full h-4 my-4">
-        <div
-          className="bg-progress h-4 rounded-full"
-          style={{ width: `${progress}%` }}
-        ></div>
-      </div> */}
       {/* 문제 */}
       <div className="flex flex-col py-3 h-1/2 justify-center">
         <p className="font-bold text-3xl mb-4 text-center">

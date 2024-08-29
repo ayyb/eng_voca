@@ -2,22 +2,22 @@
 import React, { useEffect } from "react";
 import { HeartIcon, PencilIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
-import { fetchMember,fetchScore,fetchLikeWord } from "@/app/api/actions";
+import { fetchMember,fetchScore,fetchLikeWord,incrementScore } from "@/app/api/actions";
 import { auth } from "@/auth";
 
 export default async function Page() {
   const session = await auth();
   const userId = session?.user?.id as string;
-  const member = await fetchMember(userId);
+  const member = await fetchMember();
   const memeberName = member.name ?? "Guest";
 
   const userScore = await fetchScore();
 
-  const score = 5;
+  const score = await incrementScore();
+  console.log('score',score);
   const total = 30;
   const progress = (score / total) * 100;
-  // const words = await fetchLikeWord(userId); //member Id 값 넘기기
-  const words = await fetchLikeWord(userId);
+  const words = await fetchLikeWord();
   //전역에서 회원관리할 필요성이 있음
   return (
     <>

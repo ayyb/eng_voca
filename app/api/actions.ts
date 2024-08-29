@@ -1,15 +1,13 @@
-'use server' // authV5 사용시 필요함.
+"use server"; // authV5 사용시 필요함.
 import { QueryResultRow, sql } from "@vercel/postgres";
 import { Word } from "@/app/lib/types";
-import { Words, Voca,QuizResult,Answers } from "@/app/lib/definitions";
+import { Words, Voca, QuizResult, Answers } from "@/app/lib/definitions";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { MemberInfo,Choice } from "../lib/definitions";
-
-import { signIn,auth } from "@/auth";
+import { MemberInfo, Choice } from "../lib/definitions";
+import { redirect } from "next/navigation";
+import { signIn, auth } from "@/auth";
 import { AuthError } from "next-auth";
-
-
 
 export async function createMember(
   prevState: {
@@ -44,8 +42,17 @@ export async function createMember(
   }
 }
 
-export async function fetchMember(userId : string): Promise<MemberInfo> {
+export async function fetchMember(): Promise<MemberInfo> {
   try {
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      // 로그인되지 않은 경우 처리 (예: 로그인 페이지로 리다이렉트)
+      redirect("/login");
+    }
+
+    const userId = session?.user?.id;
+
     const data = await sql<MemberInfo>`
         SELECT no, id, pw, name, TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at, member_level FROM members WHERE id = ${userId};
       `;
@@ -58,7 +65,7 @@ export async function fetchMember(userId : string): Promise<MemberInfo> {
     // const latestInvoices = .map((invoice) => ({
     //   ...invoice,
     // }));
-    console.log('data', data.rows[0]);
+    console.log("data", data.rows[0]);
     return data.rows[0];
   } catch (error) {
     throw new Error("Error");
@@ -170,8 +177,16 @@ export async function fetchWord(vocaId: number): Promise<Voca> {
 }
 
 //특정회원의 좋아요한 단어를 조회
-export async function fetchLikeWord(member: string): Promise<Words[]> {
+export async function fetchLikeWord(): Promise<Words[]> {
   try {
+    const session = await auth();
+    console.log("session", session);
+    if (!session?.user?.id) {
+      // 로그인되지 않은 경우 처리 (예: 로그인 페이지로 리다이렉트)
+      redirect("/login");
+    }
+    const userId = session?.user?.id;
+
     const data = await sql<Words>`
   SELECT vocas.word_no, vocas.word, vocas.definition, likes.liked_at, vocas.word_kr, vocas.example, vocas.example_kr
 FROM
@@ -179,7 +194,7 @@ FROM
 JOIN
   vocas ON likes.voca_id = vocas.word_no
 WHERE
-  likes.member_id = (select no from members where id= ${member});
+  likes.member_id = (select no from members where id= ${userId});
     `;
 
     return data.rows;
@@ -246,7 +261,7 @@ export async function fetchChoiceWords() {
 }
 
 //점수 계산
-const result = {score:0, total:0};
+const result = { score: 0, total: 0 };
 
 //정답
 export async function scoreCalculation(correct: number, sum: number) {
@@ -259,20 +274,24 @@ export async function fetchScore() {
   return result;
 }
 
-let reviewQuizList:QuizResult[] = [];
+let reviewQuizList: QuizResult[] = [];
 
-export async function setQuizList(content : QuizResult) {// 리뷰를 위한 데이터
+export async function setQuizList(content: QuizResult) {
+  // 리뷰를 위한 데이터
   // answers 배열을 JSON 문자열로 변환
   const answersJson = JSON.stringify(content.answers);
-  try{
-    await sql `
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    await sql`
         INSERT INTO QuizResults (userId, score, total_count, answers)
-        VALUES (${content.userId}, ${content.score}, ${content.total_count}, ${answersJson})
+        VALUES (${userId}, ${content.score}, ${content.total_count}, ${answersJson})
         RETURNING *;
-      `
-      return { message: `success` };
-  }catch(error){
-    console.error('Error saving quiz result:');
+      `;
+    return { message: `success` };
+  } catch (error) {
+    console.error("Error saving quiz result:");
   }
   // console.log('추가됨')
   // reviewQuizList.push(content);
@@ -282,28 +301,35 @@ export async function setQuizList(content : QuizResult) {// 리뷰를 위한 데
 export async function startNewQuiz() {
   // 퀴즈를 시작할 때 이전 데이터 초기화
   reviewQuizList = [];
-  console.log('새 퀴즈 시작, 리스트 초기화됨');
-  console.log('초기화됨?',reviewQuizList)
+  console.log("새 퀴즈 시작, 리스트 초기화됨");
+  console.log("초기화됨?", reviewQuizList);
   // 이후 퀴즈를 시작하는 로직 추가
 }
 
 export async function getQuizList() {
-  try{
+  try {
     const data = await sql`
       SELECT answers FROM QuizResults ORDER BY created_at DESC limit 1;
       `;
-      return data.rows[0].answers;
-  }catch(error){
-    console.error('Error fetching quiz result:', error);
+    return data.rows[0].answers;
+  } catch (error) {
+    console.error("Error fetching quiz result:", error);
   }
-  console.log('리턴값',reviewQuizList);
+  console.log("리턴값", reviewQuizList);
   return reviewQuizList;
 }
 
-export async function updatePassword(pw: string | number, id:string) {
+export async function updatePassword(pw: string | number) {
   try {
+    const session = await auth();
+    console.log("session", session);
+    if (!session?.user?.id) {
+      // 로그인되지 않은 경우 처리 (예: 로그인 페이지로 리다이렉트)
+      redirect("/login");
+    }
+    const userId = session?.user?.id;
     await sql<Choice>`
-      update members set pw = ${pw} where id = ${id};
+      update members set pw = ${pw} where id = ${userId};
     `;
 
     return { message: `success` };
@@ -312,3 +338,9 @@ export async function updatePassword(pw: string | number, id:string) {
   }
 }
 
+
+export async function incrementScore(){
+  let score = 0;
+  score++;
+  return score;
+}

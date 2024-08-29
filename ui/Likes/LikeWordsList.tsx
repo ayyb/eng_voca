@@ -9,7 +9,6 @@ import { deleteLikeWord,fetchLikeWord } from "@/app/api/actions";
 
 const LikeWordsList: React.FC<LikeWordsListProps> = ({
   // initialWords,
-  userId,
   memberId,
 }) => {
   // console.log("좋아요 단어리스트", initialWords);
@@ -21,8 +20,7 @@ const LikeWordsList: React.FC<LikeWordsListProps> = ({
   useEffect(() => {
     async function fetchAndSetLikeWords() {
       try {
-        console.log("멤버아이디", userId); 
-        const words = await fetchLikeWord(userId); // userId 값을 사용하여 데이터 페칭
+        const words = await fetchLikeWord(); // userId 값을 사용하여 데이터 페칭
         console.log("좋아요 단어리스트", words);
         const wordsWithHiddenState = words.map((word) => ({
           ...word,

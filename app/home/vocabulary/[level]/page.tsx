@@ -9,9 +9,7 @@ interface VocabularyPageProps {
 }
 
 export default async function Page({ params }: VocabularyPageProps) {
-  const session = await auth();
-  const userId = session?.user?.id as string;
-  const member = await fetchMember(userId);
+  const member = await fetchMember();
   const level = parseInt(params.level, 10);
   const memberId = member.no; //임시
   const words: Word[] = await fetchLevelWords(level, memberId);
