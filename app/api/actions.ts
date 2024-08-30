@@ -271,7 +271,19 @@ export async function scoreCalculation(correct: number, sum: number) {
 }
 
 export async function fetchScore() {
-  return result;
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    const data = await sql`
+      SELECT score, total_count FROM quiz_results WHERE userid = ${userId} ORDER BY created_at DESC LIMIT 1;
+    `;
+    const score ={ score :data.rows[0].score, total:data.rows[0].total_count}
+    return score;
+  } catch (error) {
+    throw new Error("error");
+  }
+
+  ;
 }
 
 let reviewQuizList: QuizResult[] = [];
@@ -285,7 +297,7 @@ export async function setQuizList(content: QuizResult) {
     const userId = session?.user?.id;
 
     await sql`
-        INSERT INTO QuizResults (userId, score, total_count, answers)
+        INSERT INTO quiz_results (userId, score, total_count, answers)
         VALUES (${userId}, ${content.score}, ${content.total_count}, ${answersJson})
         RETURNING *;
       `;
@@ -309,7 +321,7 @@ export async function startNewQuiz() {
 export async function getQuizList() {
   try {
     const data = await sql`
-      SELECT answers FROM QuizResults ORDER BY created_at DESC limit 1;
+      SELECT answers FROM quiz_results ORDER BY created_at DESC limit 1;
       `;
     return data.rows[0].answers;
   } catch (error) {
@@ -338,8 +350,7 @@ export async function updatePassword(pw: string | number) {
   }
 }
 
-
-export async function incrementScore(){
+export async function incrementScore() {
   let score = 0;
   score++;
   return score;

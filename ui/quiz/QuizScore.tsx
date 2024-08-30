@@ -11,6 +11,7 @@ interface QuizScoreProps {
 }
 
 const QuizScore = ({score}:QuizScoreProps) => {
+  
   return (
     <>
       <p className="font-bold text-5xl mb-4 text-center">{score.score} / {score.total}</p>

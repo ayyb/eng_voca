@@ -1,4 +1,7 @@
-import { XCircleIcon, CheckCircleIcon } from "@heroicons/react/24/solid";
+import {
+  XCircleIcon,
+  CheckCircleIcon,
+} from "@heroicons/react/24/solid";
 
 interface QuizReviewProps {
   item: {
@@ -15,15 +18,15 @@ const QuizReview = ({ item }: QuizReviewProps) => {
     <>
       <div className="bg-white rounded-xl flex flex-col p-4 mb-4">
         {/* 예문 */}
-        <div className="ml-auto">
+        <div className="w-6 h-6 ml-auto">
           {/* 정답인 경우 */}
           {item.answer === item.choice_answer ? (
-            <CheckCircleIcon className="size-7 text-green-500" />
+            <CheckCircleIcon className="w-full h-full text-green-500" />
           ) : (
-            <XCircleIcon className="size-7 text-red-500" />
+            <XCircleIcon className="w-full h-full text-red-500" />
           )}
         </div>
-        
+
         <div className="mb-5 pl-2">
           <p className="font-bold mb-2 text-xl">{item.example}</p>
           <p>{item.example_kr}</p>

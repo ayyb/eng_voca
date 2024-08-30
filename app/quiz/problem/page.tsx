@@ -1,4 +1,3 @@
-'use server'
 import { fetchQuiz,fetchChoiceWords } from "@/app/api/actions";
 import Question from "@/ui/quiz/Question";
 import { Choice } from "@/app/lib/definitions";
