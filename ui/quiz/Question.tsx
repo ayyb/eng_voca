@@ -41,24 +41,27 @@ const Question = ({ initialQuiz, initialChoices }: QuestionProps) => {
   const [choices, setChoices] = useState(initialChoices);
   const [answersList, setAnswersList] = useState<QuizResultDetail[]>([]);
   const [score, setScore] = useState(0);
-  const [isCorrect, setIsCorrect] = useState<boolean | null>(null); // 정답/오답 여부 상태 추가
+  const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
+  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [count, setCount] = useState(0);
+  const [isSelectable, setIsSelectable] = useState(true);
 
-  const [selectedChoice, setSelectedChoice] = useState(null); // 선택한 항목 상태 추가
-
-  const handleClick = (isAnswer:boolean, word:string, index) => {
-    //정답 여부를 보여주고 다음 문제로 이동
-    setSelectedChoice(index); // 클릭한 항목의 인덱스를 상태로 설정
-
-    nextQuiz(isAnswer, word); // 원래 있던 nextQuiz 함수 호출
-  };  
+  const handleClick = (isAnswer: boolean, word: string, index: number) => {
+    console.log('Selected choice:', { isAnswer, word, index });
+    setSelectedChoice(index);
+    setIsCorrect(isAnswer);
+    
+    setIsSelectable(false);
+    
+    setTimeout(() => {
+      nextQuiz(isAnswer, word);
+      setIsSelectable(true);
+    }, 1000);
+  };
 
   const nextQuiz = (isAnswer: boolean, clicked: string) => {
-    setIsCorrect(isAnswer); // 정답/오답 여부 업데이트
-    // 만약 답을 클릭했을경우 초록색으로 표시
     setScore((prevScore) => prevScore + (isAnswer ? 1 : 0));
 
-    //클릭하면 리뷰데이터에 추가
     setAnswersList((prev) => [
       ...prev,
       {
@@ -69,21 +72,17 @@ const Question = ({ initialQuiz, initialChoices }: QuestionProps) => {
       },
     ]);
 
-    // 클릭 횟수 증가
     setCount((prevCount) => prevCount + 1);
-    
-  
-    
 
-    // 1. 퀴즈 종료 조건 먼저 확인
-    if (count + 1 === quiz.length ) {
+    if (count + 1 === quiz.length) {
       setIsQuizFinished(true);
     } else {
-      console.log('끝나지않음')
-      // 2. 퀴즈가 끝나지 않았다면 currentIndex 업데이트 및 다음 문제 로직 실행
-      const nextIndex = (currentIndex + 1) 
+      const nextIndex = currentIndex + 1;
       setCurrentIndex(nextIndex);
       fetchNewChoices();
+      // 선택 상태와 정답 여부 초기화
+      setSelectedChoice(null);
+      setIsCorrect(null);
     }
   };
 
@@ -119,7 +118,7 @@ const Question = ({ initialQuiz, initialChoices }: QuestionProps) => {
       setChoices(shuffledChoices);
     }
   };
-  const progress = (count / 10) * 100; // 퀴즈를 10번 풀기로 가정
+
   return (
     <>
       {/* 진행바 */}
@@ -130,7 +129,7 @@ const Question = ({ initialQuiz, initialChoices }: QuestionProps) => {
       <div className="w-full bg-gray-200 rounded-full h-6 my-4">
         <div
           className="bg-progress h-6 rounded-full"
-          style={{ width: `${progress}%` }}
+          style={{ width: `${(count / quiz.length) * 100}%` }}
         ></div>
       </div>
       {/* 문제 */}
@@ -145,10 +144,17 @@ const Question = ({ initialQuiz, initialChoices }: QuestionProps) => {
         {choices.map((choice, index) => (
           <div
             key={index}
-            className={`bg-white rounded-lg text-center justify-center items-center py-2 font-bold ${
-              selectedChoice === index ? (choice.isAnswer ? 'text-gray-500' : 'text-red-500') : ''
-            }`}
             onClick={() => handleClick(choice.isAnswer, choice.word, index)}
+            className={`
+              bg-white rounded-lg text-center justify-center items-center py-2 font-bold cursor-pointer
+              $ {selectedChoice === index 
+                ? choice.isAnswer 
+                  ? 'text-green-500' 
+                  : 'text-red-500'
+                : 'text-gray-800 hover:bg-gray-100'
+              }
+              transition-colors duration-300
+            `}
           >
             {choice.word}
           </div>

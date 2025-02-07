@@ -15,46 +15,55 @@ interface VocabularyPageProps {
   memberId: number;
 }
 
-export default function VocabularyPage({ words,memberId }: VocabularyPageProps) {
+export default function VocabularyPage({ words, memberId }: VocabularyPageProps) {
+  // words 배열의 각 단어에 대한 liked 상태를 관리
+  const [localWords, setLocalWords] = useState(words);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHidden, setIsHidden] = useState(false);
 
-  const currentWord = words[currentIndex];
+  const currentWord = localWords[currentIndex];
   console.log("currentWord", currentWord);
 
   const handleNext = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % words.length);
-    //user checked word list - server action
-    
-
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % localWords.length);
   };
 
   const handlePrev = () => {
     setCurrentIndex(
-      (prevIndex) => (prevIndex - 1 + words.length) % words.length
+      (prevIndex) => (prevIndex - 1 + localWords.length) % localWords.length
     );
   };
   
 
   const handleClick = async () => {
-    //isFilled가 false 라면 단어장에 추가
-    if (!currentWord.liked) {
-      //좋아요 한 단어에 추가
+    try {
       const Likes = {
         word: currentWord.word_no,
         member: memberId,
       };
-      await addLikeWord(Likes);
-    } else {
-      //좋아요 취소
-      const Likes = {
-        word: currentWord.word_no,
-        member: memberId,
-      };
-      await deleteLikeWord(Likes);
+  
+      // UI를 먼저 업데이트 -> optimistic update
+      setLocalWords(prevWords => prevWords.map(word => 
+        word.word_no === currentWord.word_no 
+          ? { ...word, liked: !word.liked }
+          : word
+      ));
+  
+      if (!currentWord.liked) {
+        await addLikeWord(Likes);
+      } else {
+        await deleteLikeWord(Likes);
+      }
+    } catch (error) {
+      console.error('좋아요 처리 중 오류 발생:', error);
+  
+      // 오류 발생 시 원래 상태로 복구
+      setLocalWords(prevWords => prevWords.map(word => 
+        word.word_no === currentWord.word_no 
+          ? { ...word, liked: currentWord.liked } // 기존 상태로 복구
+          : word
+      ));
     }
-
-    currentWord.liked = !currentWord.liked;
   };
 
   const handleHidden = () => {
@@ -65,14 +74,14 @@ export default function VocabularyPage({ words,memberId }: VocabularyPageProps) 
     <>
       <div className="p-4 w-full h-full">
         <div className="flex items-center justify-between h-20">
-          <WordComponent currentWord={currentWord} memberId={memberId} />
-          {/* <p onClick={handleClick} className="cursor-pointer">
+          {/* <WordComponent currentWord={currentWord} memberId={memberId} /> */}
+          <p onClick={handleClick} className="cursor-pointer">
             {currentWord.liked ? (
-              <HeartIcon className="size-6 text-black-500" />
+              <HeartIcon className="size-6 text-red-500" />
             ) : (
               <EmptyHeart className="size-6 text-black-500" />
             )}
-          </p> */}
+          </p>
           <p onClick={handleHidden} className="cursor-pointer">
             {isHidden ? (
               <EmptyEye className="size-6 text-black-500" />
