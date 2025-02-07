@@ -66,9 +66,8 @@ const LikeWordsList: React.FC<LikeWordsListProps> = ({
     setLikeWords(newWords);
   };
 
-  const handleHidden = (id:number) => {
-    console.log('id',id)
-    console.log('likeWords',likeWords);
+  // 개별 단어의 숨김 상태를 토글하는 함수
+  const handleHidden = (id: number) => {
     setLikeWords((prev) =>
       prev.map((word) =>
         word.word_no === id ? { ...word, isHidden: !word.isHidden } : word
@@ -87,26 +86,31 @@ const LikeWordsList: React.FC<LikeWordsListProps> = ({
       </div>
       <SortOptions onSortChange={handleSortChange} />
       <div className="flex flex-col space-y-4 mt-5 mb-10 w-full">
-        {likeWords.map((likeWord,index) => (
-          <div className="bg-white rounded-sm h-14" key={index}>
+        {likeWords.map((likeWord) => (
+          <div key={likeWord.word_no} className="bg-white rounded-sm h-14">
             <div className="p-3 grid grid-cols-3 gap-6">
               {/* 영어단어 */}
               <p className="text-xl">{likeWord.word}</p>
               {/* 한글뜻 */}
-              {!likeWord.isHidden ? (
-                <p className="text-xl">{likeWord.word_kr}</p>
-              ) : (
-                <p className="text-xl"></p>
-              )}
+              <p className="text-xl">
+                {likeWord.isHidden ? '' : likeWord.word_kr}
+              </p>
               <div className="flex space-x-4 ml-auto">
-                {/* 숨김처리 */}
-                <EyeIcon
-                  className=" h-6 text-black-500"
-                  onClick={() => handleHidden(likeWord.word_no)}
-                />
+                {/* 숨김처리 아이콘 */}
+                {likeWord.isHidden ? (
+                  <EyeSlashIcon
+                    className="h-6 text-gray-500 cursor-pointer hover:text-black"
+                    onClick={() => handleHidden(likeWord.word_no)}
+                  />
+                ) : (
+                  <EyeIcon
+                    className="h-6 text-gray-500 cursor-pointer hover:text-black"
+                    onClick={() => handleHidden(likeWord.word_no)}
+                  />
+                )}
                 {/* 삭제 */}
                 <TrashIcon
-                  className=" h-6 text-black-500"
+                  className="h-6 text-gray-500 cursor-pointer hover:text-black"
                   onClick={() => handleDelete(likeWord)}
                 />
               </div>

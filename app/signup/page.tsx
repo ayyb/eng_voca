@@ -1,11 +1,16 @@
 "use client";
-import { useState } from "react";
-import { Member } from "@/app/lib/schemas";
-import { useFormState } from "react-dom";
-// import { useActionState } from "react";
+import { useState, useEffect } from "react";
+import { MemberSchema, Member } from "@/app/lib/schemas";
+import { z } from "zod";
+import { useActionState } from "react";
 import { createMember } from "@/app/api/actions";
+import Modal from "@/components/ui/Modal";
+import { useRouter } from "next/navigation";
+import { useFormState } from "react-dom"; // react가 아닌 react-dom에서 import
 
 export default function SignUpPage() {
+  const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const initialState = {
     message: "",
   };
@@ -32,11 +37,20 @@ export default function SignUpPage() {
     console.log("Current Form Data:", formData);
   };
 
-  useState(() => {
-    if(state.message){
-      alert(state.message);
+  useEffect(() => {
+    if (state?.message === "Added to new Member") {
+      setIsModalOpen(true);
     }
-  });
+  }, [state]);
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleModalConfirm = () => {
+    setIsModalOpen(false);
+    router.push('/signin');
+  };
 
   return (
     <>
@@ -121,6 +135,14 @@ export default function SignUpPage() {
           </div>
         </form>
       </div>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        title="회원가입 완료"
+        message="회원가입이 성공적으로 완료되었습니다. 로그인 페이지로 이동하시겠습니까?"
+        onConfirm={handleModalConfirm}
+      />
     </>
   );
 }
