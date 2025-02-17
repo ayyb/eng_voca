@@ -47,42 +47,37 @@ const Question = ({ initialQuiz, initialChoices }: QuestionProps) => {
   const [isSelectable, setIsSelectable] = useState(true);
 
   const handleClick = (isAnswer: boolean, word: string, index: number) => {
-    console.log('Selected choice:', { isAnswer, word, index });
-    setSelectedChoice(index);
-    setIsCorrect(isAnswer);
+    if (!isSelectable) return;
     
+    setSelectedChoice(index);
     setIsSelectable(false);
     
-    setTimeout(() => {
+    // 상태 업데이트를 한 번에 처리
+    const timer = setTimeout(() => {
       nextQuiz(isAnswer, word);
+      setSelectedChoice(null);  // nextQuiz 안에서 처리하지 않고 여기서 처리
       setIsSelectable(true);
-    }, 1000);
+    }, 2000);
+
+    return () => clearTimeout(timer);  // cleanup 함수 추가
   };
 
   const nextQuiz = (isAnswer: boolean, clicked: string) => {
     setScore((prevScore) => prevScore + (isAnswer ? 1 : 0));
-
-    setAnswersList((prev) => [
-      ...prev,
-      {
-        example: quiz[currentIndex].example,
-        example_kr: quiz[currentIndex].example_kr,
-        answer: quiz[currentIndex].word,
-        choice_answer: clicked,
-      },
-    ]);
+    setAnswersList((prev) => [...prev, {
+      example: quiz[currentIndex].example,
+      example_kr: quiz[currentIndex].example_kr,
+      answer: quiz[currentIndex].word,
+      choice_answer: clicked,
+    }]);
 
     setCount((prevCount) => prevCount + 1);
 
     if (count + 1 === quiz.length) {
       setIsQuizFinished(true);
     } else {
-      const nextIndex = currentIndex + 1;
-      setCurrentIndex(nextIndex);
+      setCurrentIndex((prev) => prev + 1);
       fetchNewChoices();
-      // 선택 상태와 정답 여부 초기화
-      setSelectedChoice(null);
-      setIsCorrect(null);
     }
   };
 
@@ -141,24 +136,41 @@ const Question = ({ initialQuiz, initialChoices }: QuestionProps) => {
       </div>
       {/* 선택지 */}
       <div className="flex flex-col space-y-4 w-full">
-        {choices.map((choice, index) => (
-          <div
-            key={index}
-            onClick={() => handleClick(choice.isAnswer, choice.word, index)}
-            className={`
-              bg-white rounded-lg text-center justify-center items-center py-2 font-bold cursor-pointer
-              $ {selectedChoice === index 
-                ? choice.isAnswer 
-                  ? 'text-green-500' 
-                  : 'text-red-500'
-                : 'text-gray-800 hover:bg-gray-100'
+        {choices.map((choice, index) => {
+          console.log('Rendering choice:', {
+            word: choice.word,
+            isAnswer: choice.isAnswer,
+            isSelected: selectedChoice === index,
+            className: `
+              ${selectedChoice === index 
+                ? choice.isAnswer
+                  ? 'text-green-600'
+                  : 'text-red-600'
+                : 'text-gray-800'
               }
-              transition-colors duration-300
-            `}
-          >
-            {choice.word}
-          </div>
-        ))}
+            `
+          });
+          
+          return (
+            <div
+              key={index}
+              onClick={() => handleClick(choice.isAnswer, choice.word, index)}
+              className={`
+                bg-white rounded-lg text-center justify-center items-center py-2 font-bold cursor-pointer
+                ${selectedChoice === index 
+                  ? choice.isAnswer
+                    ? 'text-green-500'
+                    : 'text-red-600'
+                  : 'text-gray-800'
+                }
+                ${isSelectable ? 'hover:bg-gray-100' : ''} 
+                transition-colors duration-300
+              `}
+            >
+              {choice.word}
+            </div>
+          );
+        })}
       </div>
     </>
   );

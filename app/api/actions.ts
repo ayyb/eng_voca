@@ -9,6 +9,14 @@ import { redirect } from "next/navigation";
 import { signIn, auth } from "@/auth";
 import { AuthError } from "next-auth";
 
+type State = {
+  message: string;
+  errors: {
+    id?: string;
+    password?: string;
+  };
+};
+
 export async function createMember(
   prevState: {
     message: string;
@@ -205,11 +213,34 @@ WHERE
 }
 
 export async function authenticate(
-  prevState: string | undefined,
+  state: State | undefined,
   formData: FormData
-) {
+): Promise<State | undefined> {
   console.log("Formdata", formData);
   try {
+    //id pw 체크
+    const id = formData.get("id");
+    const pw = formData.get("pw");
+
+    if(!id){
+      return {
+        message: "아이디를 입력해주세요.",
+        errors: {
+          id: "아이디를 입력해주세요.",
+          password: ""
+        }
+      }
+    }
+    if(!pw){
+      return {
+        message: "비밀번호를 입력해주세요.",
+        errors: {
+          id:"",
+          password: "비밀번호를 입력해주세요."
+        }
+      }
+    }
+
     await signIn("credentials", {
       redirect: true,
       redirectTo: "/home",
@@ -219,9 +250,21 @@ export async function authenticate(
     if (error instanceof AuthError) {
       switch (error.type) {
         case "CredentialsSignin":
-          return "Invalid credentials.";
+          return {
+            message: "로그인에 실패했습니다",
+            errors: {
+              id: "존재하지 않는 아이디입니다",
+              password: "비밀번호가 틀립니다"
+            }
+          };
         default:
-          return "Something went wrong.";
+          return {
+            message: "로그인 처리 중 오류가 발생했습니다",
+            errors: {
+              id: "",
+              password: ""
+            }
+          };
       }
     }
     throw error;

@@ -4,13 +4,16 @@ import { authenticate } from "@/app/api/actions";
 import Link from "next/link";
 import { useFormState } from "react-dom";
 
+type State = {
+  message: string;
+  errors: {
+    id?: string;
+    password?: string;
+  };
+};
 export default function LoginForm() {
-  // const [errorMessage, formAction, isPending] = useActionState(
-  //   authenticate,
-  //   undefined
-  // );
-  const initialState = { message: "", errors: {} };
-  const [errorMessage, formAction] = useFormState(authenticate, undefined);
+  const initialState: State = { message: "", errors: {} };
+  const [errorMessage, formAction] = useFormState(authenticate, initialState);
   return (
     <>
       <form action={formAction} className="h-2/3">
@@ -23,9 +26,11 @@ export default function LoginForm() {
               placeholder="ID"
             />
           </div>
-          {/* <span className="text-red-600 text-sm">
-            존재하지 않는 아이디입니다.
-          </span> */}
+          {errorMessage &&
+            <span className="text-red-600 text-sm">
+              {errorMessage.errors.id}
+            </span>
+          }
           <div className="flex flex-col w-full p-2">
             <input
               type="password"
@@ -35,14 +40,22 @@ export default function LoginForm() {
               minLength={4}
             />
           </div>
-          {/* <span className="text-red-600 text-sm">비밀번호가 틀립니다.</span> */}
+          {errorMessage &&
+              <span className="text-red-600 text-sm">
+              {errorMessage.errors.password}
+            </span>
+          }
         </div>
 
-        {errorMessage && (
+        {/* {errorMessage && (
           <>
-            <p className="text-sm text-red-500">{errorMessage}</p>
+            <p className="text-sm text-red-500">
+              {typeof errorMessage === "string"
+                ? errorMessage
+                : errorMessage.message}
+            </p>
           </>
-        )}
+        )} */}
         {/* 버튼 그룹*/}
         <div className="flex flex-col flex-1 space-y-6 p-2">
           <button

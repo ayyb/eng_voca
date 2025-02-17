@@ -28,12 +28,10 @@ export default async function ProblemPage() {
   const updatedAnswer = answers.map((answer : Choice) => {
     return {
       word: answer.word,
-      isAnswer: false,
+      isAnswer: answer.word === quiz[0].word  // 정답 여부를 실제 단어와 비교하여 설정
     };
   });
-  //랜덤으로 섞어서 선택리 리스트 초기화
-  const choices = [...updatedAnswer, { word: quiz[0].word, isAnswer: true }];
-  const shuffledChoices = shuffleArray(choices);
+  const shuffledChoices = shuffleArray(updatedAnswer);
   console.log('선택지 리스트',shuffledChoices);
   return (
     <>
