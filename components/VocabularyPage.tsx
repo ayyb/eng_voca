@@ -1,31 +1,39 @@
 "use client";
 
-import { useState } from "react";
-import { EyeIcon, HeartIcon, SpeakerWaveIcon } from "@heroicons/react/24/solid";
+import { useState, useEffect } from "react";
+import { EyeIcon, HeartIcon, SpeakerWaveIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import {
   HeartIcon as EmptyHeart,
-  EyeIcon as EmptyEye,
 } from "@heroicons/react/24/outline";
 import { Word } from "@/app/lib/types";
-import { addLikeWord, deleteLikeWord } from "@/app/api/actions";
-import WordComponent from "./WordComponent";
+import { addLikeWord, deleteLikeWord, updateLearningProgress } from "@/app/api/actions";
 
 interface VocabularyPageProps {
   words: Word[];
-  memberId: number;
+  memberId: string;
 }
 
 export default function VocabularyPage({ words, memberId }: VocabularyPageProps) {
-  // words 배열의 각 단어에 대한 liked 상태를 관리
   const [localWords, setLocalWords] = useState(words);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isHidden, setIsHidden] = useState(false);
+  const [isKoreanHidden, setIsKoreanHidden] = useState(false);
 
   const currentWord = localWords[currentIndex];
   console.log("currentWord", currentWord);
 
-  const handleNext = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % localWords.length);
+  const handleNext = async () => {
+    const nextIndex = (currentIndex + 1) % localWords.length;
+    setCurrentIndex(nextIndex);
+    
+    try {
+      await updateLearningProgress(
+        parseInt(memberId),
+        nextIndex + 1,
+        localWords.length
+      );
+    } catch (error) {
+      console.error('진행도 저장 중 오류 발생:', error);
+    }
   };
 
   const handlePrev = () => {
@@ -66,15 +74,14 @@ export default function VocabularyPage({ words, memberId }: VocabularyPageProps)
     }
   };
 
-  const handleHidden = () => {
-    setIsHidden(!isHidden);
+  const toggleKorean = () => {
+    setIsKoreanHidden(!isKoreanHidden);
   };
 
   return (
     <>
       <div className="p-4 w-full h-full">
         <div className="flex items-center justify-between h-20">
-          {/* <WordComponent currentWord={currentWord} memberId={memberId} /> */}
           <p onClick={handleClick} className="cursor-pointer">
             {currentWord.liked ? (
               <HeartIcon className="size-6 text-red-500" />
@@ -82,13 +89,13 @@ export default function VocabularyPage({ words, memberId }: VocabularyPageProps)
               <EmptyHeart className="size-6 text-black-500" />
             )}
           </p>
-          <p onClick={handleHidden} className="cursor-pointer">
-            {isHidden ? (
-              <EmptyEye className="size-6 text-black-500" />
+          <button onClick={toggleKorean} className="p-2">
+            {isKoreanHidden ? (
+              <EyeSlashIcon className="h-6 w-6 " />
             ) : (
-              <EyeIcon className="size-6 text-black-500" />
+              <EyeIcon className="h-6 w-6 " />
             )}
-          </p>
+          </button>
           <p>
             <SpeakerWaveIcon className="size-6 text-black-500" />
           </p>
@@ -100,12 +107,16 @@ export default function VocabularyPage({ words, memberId }: VocabularyPageProps)
           <p>None</p>
           <p className="m-5">[{currentWord.pronunce}]</p>
           {/* 한글뜻 */}
-          <p className="font-bold text-4xl m-8">{currentWord.word_kr}</p>
+          {!isKoreanHidden && (
+            <p className="font-bold text-4xl m-8">{currentWord.word_kr}</p>
+          )}
           {/* 예문 */}
           <div className="flex justify-between w-full px-4">
             <div className="mt-2">
               <p>{currentWord.example}</p>
-              <p>{currentWord.example_kr}</p>
+              {!isKoreanHidden && (
+                <p>{currentWord.example_kr}</p>
+              )}
               <p>{currentWord.translation}</p>
             </div>
             <p className="flex justify-center items-center">

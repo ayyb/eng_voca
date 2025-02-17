@@ -49,7 +49,7 @@ export default function SignUpPage() {
 
   const handleModalConfirm = () => {
     setIsModalOpen(false);
-    router.push('/signin');
+    router.push('/home');
   };
 
   return (

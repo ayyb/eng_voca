@@ -6,8 +6,9 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { MemberInfo, Choice } from "../lib/definitions";
 import { redirect } from "next/navigation";
-import { signIn, auth } from "@/auth";
+import { signIn, auth, signOut } from "@/auth";
 import { AuthError } from "next-auth";
+import { useUserStore } from "@/store/userStore";
 
 type State = {
   message: string;
@@ -96,7 +97,6 @@ export async function fetchLevelWords(
           SELECT 1 
           FROM likes 
           WHERE likes.voca_id = vocas.word_no 
-          AND likes.member_id = ${memberId}
         ) as liked
       FROM vocas
       ORDER BY RANDOM()
@@ -216,36 +216,37 @@ export async function authenticate(
   state: State | undefined,
   formData: FormData
 ): Promise<State | undefined> {
-  console.log("Formdata", formData);
   try {
-    //id pw 체크
-    const id = formData.get("id");
+    const id = formData.get("id") as string;
     const pw = formData.get("pw");
 
-    if(!id){
+    if(!id || !pw) {
       return {
-        message: "아이디를 입력해주세요.",
+        message: "아이디와 비밀번호를 입력해주세요.",
         errors: {
           id: "아이디를 입력해주세요.",
-          password: ""
-        }
-      }
-    }
-    if(!pw){
-      return {
-        message: "비밀번호를 입력해주세요.",
-        errors: {
-          id:"",
           password: "비밀번호를 입력해주세요."
         }
       }
     }
 
-    await signIn("credentials", {
-      redirect: true,
-      redirectTo: "/home",
+    // 로그인 시도
+    const result = await signIn("credentials", {
+      redirect: false,  // 자동 리다이렉트 방지
       ...Object.fromEntries(formData),
     });
+
+    if (result?.error) {
+      throw new Error(result.error);
+    }
+
+    // 로그인 성공 시 store 업데이트
+    useUserStore.getState().setUser(id, id); // 실제 이름 데이터로 수정 필요
+    
+    // 리다이렉트
+    redirect("/home");
+    return { message: "로그인 성공", errors: {} };
+
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
@@ -317,16 +318,23 @@ export async function fetchScore() {
   try {
     const session = await auth();
     const userId = session?.user?.id;
+    console.log("userId", userId);
     const data = await sql`
       SELECT score, total_count FROM quiz_results WHERE userid = ${userId} ORDER BY created_at DESC LIMIT 1;
     `;
-    const score ={ score :data.rows[0].score, total:data.rows[0].total_count}
+    
+    // 데이터가 없는 경우 기본값 반환
+    if (data.rows.length === 0) {
+      return { score: 0, total: 0 };
+    }
+    
+    const score = { score: data.rows[0].score, total: data.rows[0].total_count };
     return score;
   } catch (error) {
-    throw new Error("error");
+    // 에러 발생시에도 기본값 반환
+    console.error("점수 조회 중 오류 발생:", error);
+    return { score: 0, total: 0 };
   }
-
-  ;
 }
 
 let reviewQuizList: QuizResult[] = [];
@@ -397,4 +405,55 @@ export async function incrementScore() {
   let score = 0;
   score++;
   return score;
+}
+
+export async function logout() {
+  try {
+    await signOut();
+    useUserStore.getState().setUser(null, "Guest");
+    useUserStore.getState().setScore(0);
+  } catch (error) {
+    console.error('Logout failed:', error);
+  }
+}
+
+export async function updateLearningProgress(memberId: number, progress: number, total: number) {
+  try {
+    await sql`
+      INSERT INTO learning_progress (member_id, current_progress, total_words)
+      VALUES (${memberId}, ${progress}, ${total})
+      ON CONFLICT (member_id) 
+      DO UPDATE SET 
+        current_progress = ${progress},
+        total_words = ${total},
+        updated_at = CURRENT_TIMESTAMP
+    `;
+    return { success: true };
+  } catch (error) {
+    console.error('학습 진행도 업데이트 중 오류 발생:', error);
+    throw new Error('학습 진행도 업데이트 실패');
+  }
+}
+
+// 진행도 조회를 위한 함수도 추가
+export async function fetchLearningProgress(memberId: number) {
+  try {
+    const data = await sql`
+      SELECT current_progress, total_words 
+      FROM learning_progress 
+      WHERE member_id = 6
+    `;
+    
+    if (data.rows.length === 0) {
+      return { progress: 0, total: 0 };
+    }
+    
+    return {
+      progress: data.rows[0].current_progress,
+      total: data.rows[0].total_words
+    };
+  } catch (error) {
+    console.error('학습 진행도 조회 중 오류 발생:', error);
+    return { progress: 0, total: 0 };
+  }
 }

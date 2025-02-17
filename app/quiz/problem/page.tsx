@@ -24,14 +24,25 @@ export default async function ProblemPage() {
     };
   });
   console.log('퀴즈',updateQuiz);
+
+  const TOTAL_CHOICES = 4;
+  // 첫 번째 문제의 정답을 제외한 선택지들을 가져옴
   const answers = await fetchChoiceWords();
-  const updatedAnswer = answers.map((answer : Choice) => {
-    return {
+  
+  // 중복 제거된 오답 3개 선택
+  const wrongChoices = answers
+    .slice(0, TOTAL_CHOICES - 1)
+    .map((answer: Choice) => ({
       word: answer.word,
-      isAnswer: answer.word === quiz[0].word  // 정답 여부를 실제 단어와 비교하여 설정
-    };
-  });
-  const shuffledChoices = shuffleArray(updatedAnswer);
+      isAnswer: false
+    }));
+
+  const allChoices = [
+    ...wrongChoices,
+    { word: quiz[0].word, isAnswer: true }
+  ];
+
+  const shuffledChoices = shuffleArray(allChoices);
   console.log('선택지 리스트',shuffledChoices);
   return (
     <>

@@ -1,18 +1,17 @@
 // app/vocabulary/[level]/page.tsx
-import { fetchLevelWords,fetchMember } from '@/app/api/actions';
-import VocabularyPage from '@/components/VocabularyPage';
-import { Word } from '@/app/lib/types';
-import { auth } from '@/auth';
+import VocabularyPage from "@/components/VocabularyPage";
+import { fetchLevelWords } from "@/app/api/actions";
+import { auth } from "@/auth";
 
-interface VocabularyPageProps {
-  params: { level: string };
-}
+export default async function Page({ params }: { params: { level: string } }) {
+  const session = await auth();
+  const level = parseInt(params.level);
+  const memberId = session?.user?.id ?? "";
+  console.log(session?.user?.id);
 
-export default async function Page({ params }: VocabularyPageProps) {
-  const member = await fetchMember();
-  const level = parseInt(params.level, 10);
-  const memberId = member.no; //임시
-  const words: Word[] = await fetchLevelWords(level, memberId);
+  // 초기 데이터만 서버에서 가져옴
+  const initialWords = await fetchLevelWords(level, memberId);
 
-  return <VocabularyPage words={words} memberId={memberId}/>;
+  // 클라이언트 컴포넌트에 초기 데이터 전달
+  return <VocabularyPage words={initialWords} memberId={memberId} />;
 }

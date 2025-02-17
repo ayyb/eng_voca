@@ -2,11 +2,10 @@
 import { useEffect, useState } from "react";
 import {
   fetchChoiceWords,
-  scoreCalculation,
   setQuizList,
 } from "@/app/api/actions";
 import { useRouter } from "next/navigation";
-import { QuizResultDetail } from "@/app/lib/definitions";
+import Alert from "@/ui/common/Alert";
 
 // Fisher-Yates Shuffle 알고리즘을 사용하여 배열을 랜덤으로 섞는 함수
 const shuffleArray = (array: Choice[]) => {
@@ -29,22 +28,27 @@ interface Choice {
 }
 
 interface QuestionProps {
-  initialQuiz: Quiz[];
-  initialChoices: Choice[];
+  initialQuiz: any[];
+  initialChoices: any[];
 }
 
-const Question = ({ initialQuiz, initialChoices }: QuestionProps) => {
+export default function Question({ initialQuiz, initialChoices }: QuestionProps) {
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isQuizFinished, setIsQuizFinished] = useState(false);
   const [quiz, setQuiz] = useState(initialQuiz);
   const [choices, setChoices] = useState(initialChoices);
-  const [answersList, setAnswersList] = useState<QuizResultDetail[]>([]);
+  const [answersList, setAnswersList] = useState<any[]>([]);
   const [score, setScore] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [count, setCount] = useState(0);
   const [isSelectable, setIsSelectable] = useState(true);
+  const [alert, setAlert] = useState({
+    isOpen: false,
+    message: '',
+    type: 'success' as const
+  });
 
   const handleClick = (isAnswer: boolean, word: string, index: number) => {
     if (!isSelectable) return;
@@ -52,14 +56,20 @@ const Question = ({ initialQuiz, initialChoices }: QuestionProps) => {
     setSelectedChoice(index);
     setIsSelectable(false);
     
-    // 상태 업데이트를 한 번에 처리
+    // 정답 여부에 따른 알림 표시
+    setAlert({
+      isOpen: true,
+      message: isAnswer ? '정답입니다!' : '틀렸습니다.',
+      type: isAnswer ? 'success' : 'error'
+    });
+    
     const timer = setTimeout(() => {
       nextQuiz(isAnswer, word);
-      setSelectedChoice(null);  // nextQuiz 안에서 처리하지 않고 여기서 처리
+      setSelectedChoice(null);
       setIsSelectable(true);
     }, 2000);
 
-    return () => clearTimeout(timer);  // cleanup 함수 추가
+    return () => clearTimeout(timer);
   };
 
   const nextQuiz = (isAnswer: boolean, clicked: string) => {
@@ -89,26 +99,33 @@ const Question = ({ initialQuiz, initialChoices }: QuestionProps) => {
         answers: answersList,
       };
       setQuizList(reviewData);
-      alert("끝났습니다.");
       router.push("/quiz/result");
     }
   }, [isQuizFinished, score]);
 
   const fetchNewChoices = async () => {
-    //랜덤한 선택지를 가져옴
-    const newAnswers = await fetchChoiceWords();
-
-    const updatedAnswers = newAnswers.map((answer: Choice) => ({
-      word: answer.word,
-      isAnswer: false,
-    }));
-
+    const TOTAL_CHOICES = 4;
     const nextIndex = currentIndex + 1;
+    
     if (nextIndex < quiz.length) {
+      const currentAnswer = quiz[nextIndex].word;
+      // 현재 정답을 제외한 선택지들을 가져옴
+      const newAnswers = await fetchChoiceWords();
+
+      // 중복 제거된 오답 3개 선택
+      const wrongChoices = newAnswers
+        .slice(0, TOTAL_CHOICES - 1)
+        .map((answer: Choice) => ({
+          word: answer.word,
+          isAnswer: false,
+        }));
+
+      // 정답과 오답을 합침
       const newChoices = [
-        ...updatedAnswers,
-        { word: quiz[currentIndex + 1].word, isAnswer: true },
+        ...wrongChoices,
+        { word: currentAnswer, isAnswer: true },
       ];
+      
       const shuffledChoices = shuffleArray(newChoices);
       setChoices(shuffledChoices);
     }
@@ -116,6 +133,12 @@ const Question = ({ initialQuiz, initialChoices }: QuestionProps) => {
 
   return (
     <>
+      <Alert 
+        isOpen={alert.isOpen}
+        message={alert.message}
+        type={alert.type}
+        onClose={() => setAlert(prev => ({ ...prev, isOpen: false }))}
+      />
       {/* 진행바 */}
       <h2 className="mt-2">
         진행도 : {count}/{quiz.length}
@@ -156,15 +179,14 @@ const Question = ({ initialQuiz, initialChoices }: QuestionProps) => {
               key={index}
               onClick={() => handleClick(choice.isAnswer, choice.word, index)}
               className={`
-                bg-white rounded-lg text-center justify-center items-center py-2 font-bold cursor-pointer
+                bg-white rounded-lg text-center py-3 font-bold cursor-pointer
+                border-2 transition-all duration-300 ease-in-out
                 ${selectedChoice === index 
                   ? choice.isAnswer
-                    ? 'text-green-500'
-                    : 'text-red-600'
-                  : 'text-gray-800'
+                    ? 'border-green-500 text-green-500 bg-green-50 scale-105'
+                    : 'border-red-500 text-red-500 bg-red-50 scale-105'
+                  : 'border-transparent hover:border-gray-200 hover:bg-gray-50'
                 }
-                ${isSelectable ? 'hover:bg-gray-100' : ''} 
-                transition-colors duration-300
               `}
             >
               {choice.word}
@@ -174,6 +196,4 @@ const Question = ({ initialQuiz, initialChoices }: QuestionProps) => {
       </div>
     </>
   );
-};
-
-export default Question;
+}
