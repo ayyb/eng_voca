@@ -76,49 +76,47 @@ const LikeWordsList: React.FC<LikeWordsListProps> = ({
   };
 
   return (
-    <>
-      <div className="mb-5">
-        <p className="text-4xl font-bold text-white">You Like</p>
-        <p className="text-4xl font-bold text-white">
+    <div className="space-y-8">
+      <div className="mt-4 mb-12">
+        <h1 className="text-5xl text-white font-bold mb-4">You Like</h1>
+        <h1 className="text-5xl text-white font-bold">
           <strong className="italic text-blue-500">{likeWords.length}</strong>{" "}
           Words
-        </p>
+        </h1>
       </div>
-      <SortOptions onSortChange={handleSortChange} />
-      <div className="flex flex-col space-y-4 mt-5 mb-10 w-full">
-        {likeWords.map((likeWord) => (
-          <div key={likeWord.word_no} className="bg-white rounded-sm h-14">
-            <div className="p-3 grid grid-cols-3 gap-6">
-              {/* 영어단어 */}
-              <p className="text-xl">{likeWord.word}</p>
-              {/* 한글뜻 */}
-              <p className="text-xl">
-                {likeWord.isHidden ? '' : likeWord.word_kr}
-              </p>
-              <div className="flex space-x-4 ml-auto">
-                {/* 숨김처리 아이콘 */}
-                {likeWord.isHidden ? (
-                  <EyeSlashIcon
+      <div className="space-y-6 mt-8">
+        <SortOptions onSortChange={handleSortChange} />
+        <div className="flex flex-col space-y-4 w-full">
+          {likeWords.map((likeWord) => (
+            <div key={likeWord.word_no} className="bg-white rounded-sm h-14">
+              <div className="p-3 grid grid-cols-3 gap-6">
+                <p className="text-xl">{likeWord.word}</p>
+                <p className="text-xl">
+                  {likeWord.isHidden ? '' : likeWord.word_kr}
+                </p>
+                <div className="flex space-x-4 ml-auto">
+                  {likeWord.isHidden ? (
+                    <EyeSlashIcon
+                      className="h-6 text-gray-500 cursor-pointer hover:text-black"
+                      onClick={() => handleHidden(likeWord.word_no)}
+                    />
+                  ) : (
+                    <EyeIcon
+                      className="h-6 text-gray-500 cursor-pointer hover:text-black"
+                      onClick={() => handleHidden(likeWord.word_no)}
+                    />
+                  )}
+                  <TrashIcon
                     className="h-6 text-gray-500 cursor-pointer hover:text-black"
-                    onClick={() => handleHidden(likeWord.word_no)}
+                    onClick={() => handleDelete(likeWord)}
                   />
-                ) : (
-                  <EyeIcon
-                    className="h-6 text-gray-500 cursor-pointer hover:text-black"
-                    onClick={() => handleHidden(likeWord.word_no)}
-                  />
-                )}
-                {/* 삭제 */}
-                <TrashIcon
-                  className="h-6 text-gray-500 cursor-pointer hover:text-black"
-                  onClick={() => handleDelete(likeWord)}
-                />
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 

@@ -1,8 +1,6 @@
 import { fetchMember } from "@/app/api/actions";
-import { useState, useEffect } from "react";
-import { MemberInfo } from "@/app/lib/definitions";
 import MemberDetail from "@/ui/member/MemberDetail";
-import { auth } from "@/auth";
+import BackButton from "@/components/common/BackButton";
 
 const getMemberLevelText = (level: Number) => {
   switch (level) {
@@ -20,53 +18,21 @@ const getMemberLevelText = (level: Number) => {
 
 export default async function MemberPage() {
   const memberInfo = await fetchMember();
+  
   return (
-    <>
-      <div className="p-3 w-full h-full ">
-        <p className="text-4xl font-bold mb-9">My Page</p>
-        <div className="flex flex-col w-full space-y-4 flex-1 mb-9">
-        {/* name, id, levels, member since */}
-        <div className="flex flex-col w-full">
-          <label className="text-lg">Name</label>
-          <input
-            type="text"
-            className="border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
-            value={memberInfo.name}
-            readOnly
-          />
-        </div>
-        <div className="flex flex-col w-full">
-          <label className="text-lg">ID</label>
-          <input
-            type="text"
-            className="border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
-            value={memberInfo.id}
-            readOnly
-          />
-        </div>
-        <div className="flex flex-col w-full">
-          <label className="text-lg">Levels</label>
-          <input
-            type="text"
-            className="border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
-            value={getMemberLevelText(memberInfo.member_level)}
-            readOnly
-          />
-        </div>
-        <div className="flex flex-col w-full">
-          <label className="text-lg">Member Since</label>
-          <input
-            type="text"
-            className="border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
-            value={memberInfo.created_at}
-            readOnly
-          />
-        </div>
+    <div className="p-8">
+      <BackButton />
+
+      {/* 상단 텍스트 영역 */}
+      <div className="mt-8 mb-12">
+        <p className="font-bold text-4xl text-black">My Page</p>
       </div>
-        <MemberDetail/>
-        {/* <div className="flex flex-col w-full space-y-4 flex-1 mb-9">
+
+      {/* 프로필 정보 영역 */}
+      <div className="flex-1">
+        <div className="space-y-12">
           <div className="flex flex-col w-full">
-            <label className="text-lg">Name</label>
+            <label className="text-sm text-gray-500 mb-1">Name</label>
             <input
               type="text"
               className="border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
@@ -74,8 +40,9 @@ export default async function MemberPage() {
               readOnly
             />
           </div>
+
           <div className="flex flex-col w-full">
-            <label className="text-lg">ID</label>
+            <label className="text-sm text-gray-500 mb-1">ID</label>
             <input
               type="text"
               className="border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
@@ -83,8 +50,9 @@ export default async function MemberPage() {
               readOnly
             />
           </div>
+
           <div className="flex flex-col w-full">
-            <label className="text-lg">Levels</label>
+            <label className="text-sm text-gray-500 mb-1">Level</label>
             <input
               type="text"
               className="border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
@@ -92,8 +60,9 @@ export default async function MemberPage() {
               readOnly
             />
           </div>
+
           <div className="flex flex-col w-full">
-            <label className="text-lg">Member Since</label>
+            <label className="text-sm text-gray-500 mb-1">Member Since</label>
             <input
               type="text"
               className="border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
@@ -101,47 +70,13 @@ export default async function MemberPage() {
               readOnly
             />
           </div>
-        </div> */}
-        {/* <button
-          className="bg-black text-white p-2 rounded-lg mt-4 flex mx-auto"
-          onClick={() => {
-            changePasswordOpen();
-          }}
-        >
-          Change Password
-        </button> */}
+        </div>
 
-        {/* 비밀번호 변경 */}
-        {/* <div className={isHidden ? "hidden" : ""}>
-          <div className="flex flex-col w-full">
-            <input
-              type="text"
-              className="border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
-              placeholder="Current Password"
-              readOnly
-            />
-          </div>
-          <div className="flex flex-col w-full">
-            <input
-              type="text"
-              className="border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
-              placeholder="Password to be changed"
-              readOnly
-            />
-          </div>
-          <div className="flex flex-col w-full">
-            <input
-              type="text"
-              className="border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
-              placeholder="reconfirm Password"
-              readOnly
-            />
-          </div>
-          <button className="bg-black text-white p-2 rounded-lg mt-4 flex mx-auto">
-            OK
-          </button>
-        </div> */}
+        {/* Change Password 버튼 영역 */}
+        <div className="mt-16">
+          <MemberDetail />
+        </div>
       </div>
-    </>
+    </div>
   );
 }

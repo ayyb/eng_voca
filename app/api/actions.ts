@@ -15,17 +15,15 @@ type State = {
   errors: {
     id?: string;
     password?: string;
+    name?: string;
+    passwordConfirm?: string;
   };
 };
 
 export async function createMember(
-  prevState: {
-    message: string;
-  },
+  prevState: State,
   formData: FormData
-) {
-  console.log("작동함?");
-  console.log(formData.get("id"));
+): Promise<State> {
   try {
     const schema = z.object({
       id: z.string().min(1),
@@ -37,17 +35,28 @@ export async function createMember(
       pw: formData.get("pw"),
       name: formData.get("name"),
     });
-    console.log("데이터 받음", data);
+
     await sql`
       INSERT INTO members (id, pw, name, created_at, member_level)
       VALUES (${data.id}, ${data.pw}, ${data.name}, now(), 1);
     `;
-    // 페이지를 다시 검증하여 최신 데이터로 갱신
+
     revalidatePath("/home");
-    // redirect('/login');
-    return { message: `Added to new Member` };
+    return { 
+      message: `Added to new Member`,
+      errors: {} 
+    };
   } catch (error) {
-    return { message: "Failed to create member" };
+    return { 
+      message: "Failed to create member",
+      errors: {
+        id: "Failed to create account",
+        password: "Please try again",
+        name: "Please try again",
+        passwordConfirm: "Please try again",
+
+      }
+    };
   }
 }
 
@@ -83,7 +92,7 @@ export async function fetchMember(): Promise<MemberInfo> {
 
 export async function fetchLevelWords(
   level: number,
-  memberId: number
+  memberId: string
 ): Promise<Word[]> {
   try {
     let result;
@@ -352,68 +361,48 @@ export async function setQuizList(content: QuizResult) {
         VALUES (${userId}, ${content.score}, ${content.total_count}, ${answersJson})
         RETURNING *;
       `;
-    return { message: `success` };
-  } catch (error) {
-    console.error("Error saving quiz result:");
-  }
-  // console.log('추가됨')
-  // reviewQuizList.push(content);
-  // console.log(reviewQuizList);
-}
-
-export async function startNewQuiz() {
-  // 퀴즈를 시작할 때 이전 데이터 초기화
-  reviewQuizList = [];
-  console.log("새 퀴즈 시작, 리스트 초기화됨");
-  console.log("초기화됨?", reviewQuizList);
-  // 이후 퀴즈를 시작하는 로직 추가
-}
-
-export async function getQuizList() {
-  try {
-    const data = await sql`
-      SELECT answers FROM quiz_results ORDER BY created_at DESC limit 1;
-      `;
-    return data.rows[0].answers;
-  } catch (error) {
-    console.error("Error fetching quiz result:", error);
-  }
-  console.log("리턴값", reviewQuizList);
-  return reviewQuizList;
-}
-
-export async function updatePassword(pw: string | number) {
-  try {
-    const session = await auth();
-    console.log("session", session);
-    if (!session?.user?.id) {
-      // 로그인되지 않은 경우 처리 (예: 로그인 페이지로 리다이렉트)
-      redirect("/login");
-    }
-    const userId = session?.user?.id;
-    await sql<Choice>`
-      update members set pw = ${pw} where id = ${userId};
-    `;
-
-    return { message: `success` };
+    return { message: ''}
   } catch (error) {
     throw new Error("error");
   }
 }
 
-export async function incrementScore() {
-  let score = 0;
-  score++;
-  return score;
+export async function fetchLearningProgress(memberId: number) {
+  try {
+    const data = await sql`
+      SELECT current_progress, total_words 
+      FROM learning_progress 
+      WHERE member_id = ${memberId}
+    `;
+    
+    if (data.rows.length === 0) {
+      return { progress: 0, total: 0 };
+    }
+    
+    return {
+      progress: data.rows[0].current_progress,
+      total: data.rows[0].total_words
+    };
+  } catch (error) {
+    console.error('학습 진행도 조회 중 오류 발생:', error);
+    return { progress: 0, total: 0 };
+  }
 }
 
-export async function logout() {
+export async function getQuizList() {
   try {
-    await signOut();
-    useUserStore.getState().setUser(null, "Guest");
-    useUserStore.getState().setScore(0);
+    const session = await auth();
+    const userId = session?.user?.id;
+    
+    const data = await sql`
+      SELECT answers FROM quiz_results 
+      WHERE userId = ${userId}
+      ORDER BY created_at DESC limit 1;
+    `;
+    return data.rows[0].answers;
   } catch (error) {
-    console.error('Logout failed:', error);
+    console.error("Error fetching quiz result:", error);
+    return [];
   }
 }
 
@@ -432,55 +421,5 @@ export async function updateLearningProgress(memberId: number, progress: number,
   } catch (error) {
     console.error('학습 진행도 업데이트 중 오류 발생:', error);
     throw new Error('학습 진행도 업데이트 실패');
-  }
-}
-
-// 진행도 조회를 위한 함수도 추가
-export async function fetchLearningProgress(memberId: number) {
-  try {
-    const data = await sql`
-      SELECT current_progress, total_words 
-      FROM learning_progress 
-      WHERE member_id = 6
-    `;
-    
-    if (data.rows.length === 0) {
-      return { progress: 0, total: 0 };
-    }
-    
-    return {
-      progress: data.rows[0].current_progress,
-      total: data.rows[0].total_words
-    };
-  } catch (error) {
-    console.error('학습 진행도 조회 중 오류 발생:', error);
-    return { progress: 0, total: 0 };
-  }
-}
-
-// 현재 비밀번호 검증 함수 추가
-export async function verifyCurrentPassword(currentPassword: string) {
-  try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      redirect("/login");
-    }
-    const userId = session?.user?.id;
-    
-    const data = await sql`
-      SELECT CASE 
-        WHEN EXISTS (
-          SELECT 1 FROM members 
-          WHERE id = ${userId} AND pw = ${currentPassword}
-        )
-        THEN 'valid'
-        ELSE 'invalid'
-      END as result;
-    `;
-    
-    return { isValid: data.rows[0].result === 'valid' };
-  } catch (error) {
-    console.error('비밀번호 검증 중 오류:', error);
-    throw new Error("error");
   }
 }

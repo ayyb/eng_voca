@@ -1,21 +1,19 @@
 import NavFooter from "@/components/NavFooter";
 
-export default function MainLayout({
-  children, // will be a page or nested layout
+export default function LikesLayout({
+  children,
 }: {
   children: React.ReactNode;
 }) {
-  {
-    /* {children} */
-  }
   return (
-    <>
-      <div className="bg-white flex items-center justify-center min-h-screen">
-        <div className="bg-customBlue p-4 w-full max-w-md h-screen flex flex-col items-center justify-center">
+    <div className="min-h-screen bg-white p-4">
+      <div className="w-full max-w-md mx-auto min-h-screen flex flex-col 
+                    border border-gray-200 rounded-2xl shadow-lg relative bg-customBlue">
+        <div className="flex-1 pt-12">
           {children}
-          <NavFooter />
         </div>
+        <NavFooter />
       </div>
-    </>
+    </div>
   );
 }

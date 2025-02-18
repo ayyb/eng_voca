@@ -44,12 +44,13 @@ export default async function ProblemPage() {
 
   const shuffledChoices = shuffleArray(allChoices);
   console.log('선택지 리스트',shuffledChoices);
+
   return (
-    <>
-      <div className="p-4 w-full h-full">
-        {/* 문제 */}
-        <Question initialQuiz={updateQuiz} initialChoices={shuffledChoices} />
-      </div>
-    </>
+    <div className="flex-1 flex flex-col h-full">
+      <Question 
+        initialQuiz={updateQuiz} 
+        initialChoices={shuffledChoices} 
+      />
+    </div>
   );
 }

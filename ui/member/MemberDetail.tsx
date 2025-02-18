@@ -3,6 +3,8 @@ import { updatePassword, verifyCurrentPassword } from "@/app/api/actions";
 import { useState } from "react";
 import { MemberInfo } from "@/app/lib/definitions";
 import Button from "@/components/common/Button";
+import { useRouter } from "next/navigation";
+import { signOut } from "@/auth";
 
 const MemberDetail = () => {
   const [isHidden, setIsHidden] = useState(true);
@@ -12,6 +14,8 @@ const MemberDetail = () => {
   const [passwordMatch, setPasswordMatch] = useState(true);
   const [currentPassword, setCurrentPassword] = useState("");
   const [currentPasswordError, setCurrentPasswordError] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const router = useRouter();
 
   const changePasswordOpen = () => {
     setIsHidden(!isHidden);
@@ -71,78 +75,88 @@ const MemberDetail = () => {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      router.push("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
   return (
-    <>
-      <div className="w-full mt-4 space-y-4 mb-10">
-        <button
-          className="w-full bg-black text-white p-3 rounded-lg
-                   hover:bg-gray-800 transition-colors duration-200"
-          onClick={changePasswordOpen}
-        >
-          Change Password
-        </button>
-      </div>
+    <div className="space-y-16">
+      {isEditing ? (
+        <div className="space-y-12">
+          <div className="flex flex-col w-full">
+            <label className="text-sm text-gray-500 mb-1">Current Password</label>
+            <input
+              type="password"
+              className="border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
+              placeholder="Current Password"
+              value={currentPassword}
+              onChange={(e) => {
+                setCurrentPassword(e.target.value);
+                setCurrentPasswordError(false);
+              }}
+            />
+            {currentPasswordError && (
+              <span className="text-red-500 text-sm mt-1">
+                현재 비밀번호가 올바르지 않습니다.
+              </span>
+            )}
+          </div>
 
-      <div className={isHidden ? "hidden" : "w-full mt-8 space-y-4"}>
-        <div className="flex flex-col w-full">
-          <input
-            type="password"
-            className="w-full border-b-2 p-2 focus:outline-none focus:border-blue-500
-              ${currentPasswordError ? 'border-red-500' : 'border-gray-300'}"
-            placeholder="Current Password"
-            value={currentPassword}
-            onChange={(e) => {
-              setCurrentPassword(e.target.value);
-              setCurrentPasswordError(false);
-            }}
-          />
-          {currentPasswordError && (
-            <span className="text-red-500 text-sm mt-1">
-              현재 비밀번호가 올바르지 않습니다.
-            </span>
-          )}
+          <div className="flex flex-col w-full">
+            <label className="text-sm text-gray-500 mb-1">New Password</label>
+            <input
+              type="password"
+              className="border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
+              placeholder="New Password"
+              value={password}
+              onChange={handlePasswordChange}
+            />
+          </div>
+
+          <div className="flex flex-col w-full">
+            <label className="text-sm text-gray-500 mb-1">Confirm Password</label>
+            <input
+              type="password"
+              className="border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={handleConfirmPasswordChange}
+            />
+            {!passwordMatch && confirmPassword && (
+              <span className="text-red-500 text-sm mt-1">
+                비밀번호가 일치하지 않습니다.
+              </span>
+            )}
+            {passwordMatch && confirmPassword && (
+              <span className="text-green-500 text-sm mt-1">
+                비밀번호가 일치합니다.
+              </span>
+            )}
+          </div>
+
+          <div className="mt-8">
+            <Button onClick={() => setIsEditing(false)}>
+              OK
+            </Button>
+          </div>
         </div>
+      ) : (
+        <div className="space-y-6">
+          <Button onClick={() => setIsEditing(true)}>
+            Change Password
+          </Button>
 
-        <div className="flex flex-col w-full">
-          <input
-            type="password"
-            className="w-full border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
-            placeholder="New Password"
-            value={password}
-            onChange={handlePasswordChange}
-          />
+          <Button variant="white" onClick={handleLogout}>
+            Logout
+          </Button>
         </div>
-
-        <div className="flex flex-col w-full">
-          <input
-            type="password"
-            className="w-full border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
-            placeholder="Confirm New Password"
-            value={confirmPassword}
-            onChange={handleConfirmPasswordChange}
-          />
-          {!passwordMatch && confirmPassword && (
-            <span className="text-red-500 text-sm mt-1">
-              비밀번호가 일치하지 않습니다.
-            </span>
-          )}
-          {passwordMatch && confirmPassword && (
-            <span className="text-green-500 text-sm mt-1">
-              비밀번호가 일치합니다.
-            </span>
-          )}
-        </div>
-
-        <Button
-          onClick={changePassword}
-          disabled={
-            !passwordMatch || !password || !confirmPassword || !currentPassword
-          }
-        >
-          Ok
-        </Button>
-      </div>
-    </>
+      )}
+    </div>
   );
 };
 

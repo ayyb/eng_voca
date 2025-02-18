@@ -9,12 +9,12 @@ export default function SignInPage() {
   };
   return (
     <>
-      <div className="p-3 w-full h-full">
+      {/* <div className="p-3 w-full h-full">
         <div className="flex h-1/3">
           <p className="text-6xl font-bold items-center flex">Sign in</p>
-        </div>
+        </div> */}
         <LoginForm />
-      </div>
+      {/* </div> */}
     </>
   );
 }

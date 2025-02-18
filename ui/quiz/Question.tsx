@@ -44,10 +44,14 @@ export default function Question({ initialQuiz, initialChoices }: QuestionProps)
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [count, setCount] = useState(0);
   const [isSelectable, setIsSelectable] = useState(true);
-  const [alert, setAlert] = useState({
+  const [alert, setAlert] = useState<{
+    isOpen: boolean;
+    message: string;
+    type: 'success' | 'error';
+  }>({
     isOpen: false,
     message: '',
-    type: 'success' as const
+    type: 'success'
   });
 
   const handleClick = (isAnswer: boolean, word: string, index: number) => {

@@ -3,12 +3,15 @@ import "../public/reset.css";
 import "../public/font.css";
 import "../public/main.css";
 import Link from "next/link";
+import Button from "@/components/common/Button";
 
 const HomePage = async () => {
   return (
     <div className="min-h-screen bg-white p-4">
-      <div className="w-full max-w-md mx-auto h-screen flex flex-col p-8 
-                      border border-gray-200 rounded-2xl shadow-lg">
+      <div
+        className="w-full max-w-md mx-auto h-screen flex flex-col p-8 
+                      border border-gray-200 rounded-2xl shadow-lg"
+      >
         {/* 상단 텍스트 영역 */}
         <div className="flex-1 flex flex-col justify-center">
           <div className="space-y-6">
@@ -24,25 +27,14 @@ const HomePage = async () => {
         {/* 하단 버튼 영역 */}
         <div className="space-y-6 w-full mb-12">
           <Link href="/home" className="block">
-            <button 
-              className="w-full bg-customBlue text-white font-bold rounded-lg 
-                         text-xl sm:text-2xl p-4 transition-colors duration-200 
-                         hover:bg-blue-400" 
-              type="button"
-            >
-              Start as Guest
-            </button>
+            <Button>Start as Guest</Button>
           </Link>
-          <Link href="/login" className="block">
-            <button 
-              className="w-full bg-customBlue text-white font-bold rounded-lg 
-                         text-xl sm:text-2xl p-4 transition-colors duration-200 
-                         hover:bg-blue-400" 
-              type="button"
-            >
+
+          <Button>
+            <a href="/login" className="block">
               Login
-            </button>
-          </Link>
+            </a>
+          </Button>
         </div>
       </div>
     </div>

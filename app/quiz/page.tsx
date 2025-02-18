@@ -1,10 +1,12 @@
 import Link from "next/link";
 import Button from "@/components/common/Button";
+import BackButton from "@/components/common/BackButton";
 
 export default function QuizPage() {
   return (
     <>
-      <div className="p-4 w-full h-full">
+      <div className="p-8 w-full h-full">
+      <BackButton />
         <div className="mb-5">
           <p className="text-4xl font-bold text-white">Quiz</p>
         </div>

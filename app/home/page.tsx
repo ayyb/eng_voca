@@ -40,7 +40,7 @@ export default async function Page() {
         <QuizScore score={userScore} />
       </div>
 
-      <h2 className="text-3xl font-bold mt-4 text-white">Today's Learning</h2>
+      <h2 className="text-3xl font-bold mt-6 mb-6 text-white">Today's Learning</h2>
       <div className="bg-white p-10 my-4 rounded-xl">
         <p className="text-3xl font-bold">Vocabulary</p>
         <p className="text-sm mt-3">Today's random 10 words</p>
@@ -54,36 +54,56 @@ export default async function Page() {
         </Link>
       </div>
 
-      <h2 className="mt-4 text-3xl font-bold text-white mb-4">Levels</h2>
-      <div className="flex flex-wrap w-full space-y-4 h-1/4">
-        <div className="flex w-full space-x-4 ">
-          <Link
-            href="/home/vocabulary/1"
-            className="bg-red-100 p-4 flex-1 rounded-lg"
-          >
-            Beginner
-          </Link>
-          <Link
-            href="/home/vocabulary/2"
-            className="bg-yellow-100 p-4 flex-1 rounded-lg"
-          >
-            Intermediate
-          </Link>
-        </div>
-        <div className="flex w-full space-x-4">
-          <Link
-            href="/home/vocabulary/3"
-            className="bg-blue-100 p-4 flex-1 rounded-lg"
-          >
-            Advanced
-          </Link>
-          <Link
-            href="/home/vocabulary/4"
-            className="bg-green-100 p-4 flex-1 rounded-lg"
-          >
-            Expert
-          </Link>
-        </div>
+      {/* 하단 레벨 바로가기 */}
+      <h2 className="mt-4 text-3xl text-white mb-6 font-bold">Levels</h2>
+      <div className="grid grid-cols-2 gap-4">
+        <Link href="/home/vocabulary/1">
+          <div className="bg-red-100 rounded-lg h-32 p-4 flex flex-col justify-between">
+            <div>
+              <h3 className="text-xl">Beginner</h3>
+              <p className="text-sm mt-1">30 words</p>
+            </div>
+            <div className="text-right">
+              <p className="text-sm">Level 1</p>
+            </div>
+          </div>
+        </Link>
+
+        <Link href="/home/vocabulary/2">
+          <div className="bg-yellow-100 rounded-lg h-32 p-4 flex flex-col justify-between">
+            <div>
+              <h3 className="text-xl">Intermediate</h3>
+              <p className="text-sm mt-1">30 words</p>
+            </div>
+            <div className="text-right">
+              <p className="text-sm">Level 2</p>
+            </div>
+          </div>
+        </Link>
+
+        <Link href="/home/vocabulary/3">
+          <div className="bg-blue-100 rounded-lg h-32 p-4 flex flex-col justify-between">
+            <div>
+              <h3 className="text-xl">Advanced</h3>
+              <p className="text-sm mt-1">30 words</p>
+            </div>
+            <div className="text-right">
+              <p className="text-sm">Level 3</p>
+            </div>
+          </div>
+        </Link>
+
+        <Link href="/home/vocabulary/4">
+          <div className="bg-green-100 rounded-lg h-32 p-4 flex flex-col justify-between">
+            <div>
+              <h3 className="text-xl">Expert</h3>
+              <p className="text-sm mt-1">30 words</p>
+            </div>
+            <div className="text-right">
+              <p className="text-sm">Level 4</p>
+            </div>
+          </div>
+        </Link>
       </div>
     </div>
   );

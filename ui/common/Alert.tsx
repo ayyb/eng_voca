@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 interface AlertProps {
   message: string;
-  type: 'success' | 'error' | 'info';
+  type: 'success' | 'error';
   isOpen: boolean;
   onClose: () => void;
 }
