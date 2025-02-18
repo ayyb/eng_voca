@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { signIn } from "@/auth"
+import Button from "@/components/common/Button";
 
 export default function SignInPage() {
   const handleInput = (value: string) => {
@@ -46,13 +47,17 @@ export default function SignInPage() {
           </div>
           {/* 버튼 */}
           <div className="flex flex-col flex-1 h-1/3 gap-4">
-            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-              <Link href="/home">Sign in</Link>
-            </button>
+            <Button>
+              <Link href="/home" className="flex items-center justify-center h-full w-full">
+                Sign in
+              </Link>
+            </Button>
 
-            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-              <Link href="/signup">Sign up</Link>
-            </button>
+            <Button>
+              <Link href="/signup" className="flex items-center justify-center h-full w-full">
+                Sign up
+              </Link>
+            </Button>
           </div>
         </form>
       </div>

@@ -457,3 +457,30 @@ export async function fetchLearningProgress(memberId: number) {
     return { progress: 0, total: 0 };
   }
 }
+
+// 현재 비밀번호 검증 함수 추가
+export async function verifyCurrentPassword(currentPassword: string) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      redirect("/login");
+    }
+    const userId = session?.user?.id;
+    
+    const data = await sql`
+      SELECT CASE 
+        WHEN EXISTS (
+          SELECT 1 FROM members 
+          WHERE id = ${userId} AND pw = ${currentPassword}
+        )
+        THEN 'valid'
+        ELSE 'invalid'
+      END as result;
+    `;
+    
+    return { isValid: data.rows[0].result === 'valid' };
+  } catch (error) {
+    console.error('비밀번호 검증 중 오류:', error);
+    throw new Error("error");
+  }
+}

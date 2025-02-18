@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Button from "@/components/common/Button";
 
 export default function QuizPage() {
   return (
@@ -52,7 +53,7 @@ export default function QuizPage() {
         </div>
         <div className="h-1/4">
           <p className="text-xl font-bold">Count</p>
-          <select className="w-1/4 h-10 border-2 border-gray-300 rounded-lg p-2">
+          <select className="w-1/3 h-10 border-2 border-gray-300 rounded-lg p-2">
             <option value="10">10</option>
             <option value="20">20</option>
             <option value="30">30</option>
@@ -61,12 +62,13 @@ export default function QuizPage() {
 
         <div className="">
           <Link href="/quiz/problem">
-            <button
-              className="bg-gray-400 text-white p-3 mt-2 rounded w-full "
+            <Button
               id="start"
+              variant="white"
+              className="mt-2"
             >
               Start
-            </button>
+            </Button>
           </Link>
         </div>
       </div>
