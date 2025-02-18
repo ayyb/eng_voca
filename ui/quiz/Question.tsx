@@ -141,12 +141,12 @@ export default function Question({ initialQuiz, initialChoices }: QuestionProps)
       />
       {/* 진행바 */}
       <h2 className="mt-2">
-        진행도 : {count}/{quiz.length}
+        Score : {count}/{quiz.length}
       </h2>
       {/* 프로그래스바 */}
-      <div className="w-full bg-gray-200 rounded-full h-6 my-4">
+      <div className="w-full bg-white rounded-xl h-5 my-4">
         <div
-          className="bg-progress h-6 rounded-full"
+          className="bg-progress h-6 rounded-xl"
           style={{ width: `${(count / quiz.length) * 100}%` }}
         ></div>
       </div>

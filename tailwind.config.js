@@ -14,7 +14,11 @@ module.exports = {
     'text-blue-500', 
     'bg-blue-500',
     'text-red-500',
-    'bg-red-500'
+    'bg-red-500',
+    'bg-progress',    // 추가
+    'text-progress',   // 추가
+    'text-customBlue',
+    'bg-customBlue',
   ],
   theme: {
     extend: {

@@ -13,9 +13,9 @@ export function LearningProgress({ initialProgress }: LearningProgressProps) {
       <h2 className="text mt-2">
         Your learning Progress {`${initialProgress} / 10`}
       </h2>
-      <div className="w-full bg-gray-200 rounded-full h-6 my-4">
+      <div className="w-full bg-white rounded-xl h-6 my-4">
         <div
-          className="bg-progress h-6 rounded-full"
+          className="bg-progress h-6 rounded-xl"
           style={{ width: `${progress}%` }}
         ></div>
       </div>
