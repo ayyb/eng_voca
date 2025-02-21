@@ -136,68 +136,60 @@ export default function Question({ initialQuiz, initialChoices }: QuestionProps)
   };
 
   return (
-    <>
+    <div className="flex flex-col h-full">
       <Alert 
         isOpen={alert.isOpen}
         message={alert.message}
         type={alert.type}
         onClose={() => setAlert(prev => ({ ...prev, isOpen: false }))}
       />
-      {/* 진행바 */}
-      <h2 className="mt-2">
-        Score : {count}/{quiz.length}
-      </h2>
-      {/* 프로그래스바 */}
-      <div className="w-full bg-white rounded-xl h-5 my-4">
-        <div
-          className="bg-progress h-6 rounded-xl"
-          style={{ width: `${(count / quiz.length) * 100}%` }}
-        ></div>
+
+      {/* 상단 진행바 영역 - h-20 고정 높이 */}
+      <div className="flex items-center h-20">
+        <div className="w-full">
+          <h2 className="mb-2">progress : {count}/{quiz.length}</h2>
+          <div className="w-full bg-white rounded-xl h-5">
+            <div
+              className="bg-progress h-5 rounded-xl"
+              style={{ width: `${(count / quiz.length) * 100}%` }}
+            ></div>
+          </div>
+        </div>
       </div>
-      {/* 문제 */}
-      <div className="flex flex-col py-3 h-1/2 justify-center">
-        <p className="font-bold text-3xl mb-4 text-center">
-          {quiz[currentIndex].example}
-        </p>
-        <p className="text-center">{quiz[currentIndex].example_kr}</p>
+
+      {/* 문제 영역 - h-1/2 고정 높이 */}
+      <div className="flex justify-center items-center flex-col h-1/2">
+        <div className="w-full text-center">
+          <p className="font-bold text-3xl mb-4">
+            {quiz[currentIndex].example}
+          </p>
+          <p className="text-xl">
+            {quiz[currentIndex].example_kr}
+          </p>
+        </div>
       </div>
-      {/* 선택지 */}
-      <div className="flex flex-col space-y-4 w-full">
-        {choices.map((choice, index) => {
-          console.log('Rendering choice:', {
-            word: choice.word,
-            isAnswer: choice.isAnswer,
-            isSelected: selectedChoice === index,
-            className: `
+
+      {/* 선택지 영역 */}
+      <div className="flex-1 space-y-4 py-4">
+        {choices.map((choice, index) => (
+          <div
+            key={index}
+            onClick={() => handleClick(choice.isAnswer, choice.word, index)}
+            className={`
+              bg-white rounded-lg text-center py-4 font-bold cursor-pointer
+              border-2 transition-all duration-300 ease-in-out
               ${selectedChoice === index 
                 ? choice.isAnswer
-                  ? 'text-green-600'
-                  : 'text-red-600'
-                : 'text-gray-800'
+                  ? 'border-green-500 text-green-500 bg-green-50 scale-105'
+                  : 'border-red-500 text-red-500 bg-red-50 scale-105'
+                : 'border-transparent hover:border-gray-200 hover:bg-gray-50'
               }
-            `
-          });
-          
-          return (
-            <div
-              key={index}
-              onClick={() => handleClick(choice.isAnswer, choice.word, index)}
-              className={`
-                bg-white rounded-lg text-center py-3 font-bold cursor-pointer
-                border-2 transition-all duration-300 ease-in-out
-                ${selectedChoice === index 
-                  ? choice.isAnswer
-                    ? 'border-green-500 text-green-500 bg-green-50 scale-105'
-                    : 'border-red-500 text-red-500 bg-red-50 scale-105'
-                  : 'border-transparent hover:border-gray-200 hover:bg-gray-50'
-                }
-              `}
-            >
-              {choice.word}
-            </div>
-          );
-        })}
+            `}
+          >
+            {choice.word}
+          </div>
+        ))}
       </div>
-    </>
+    </div>
   );
 }

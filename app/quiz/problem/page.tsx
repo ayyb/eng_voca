@@ -46,11 +46,13 @@ export default async function ProblemPage() {
   console.log('선택지 리스트',shuffledChoices);
 
   return (
-    <div className="flex-1 flex flex-col h-full">
-      <Question 
-        initialQuiz={updateQuiz} 
-        initialChoices={shuffledChoices} 
-      />
+    <div className="bg-white flex items-center justify-center min-h-screen">
+      <div className="bg-customBlue p-4 w-full max-w-md h-screen flex flex-col">
+        <Question 
+          initialQuiz={updateQuiz} 
+          initialChoices={shuffledChoices} 
+        />
+      </div>
     </div>
   );
 }

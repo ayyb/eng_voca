@@ -4,15 +4,19 @@ import BackButton from "@/components/common/BackButton";
 
 export default function QuizPage() {
   return (
-    <>
-      <div className="p-8 w-full h-full">
+    <div className="p-8 w-full h-screen flex flex-col">
       <BackButton />
-        <div className="mb-5">
-          <p className="text-4xl font-bold text-white">Quiz</p>
-        </div>
-        <p className="text-xl mt-4">Select a range</p>
-        <div className="flex flex-col space-y-4 mt-5 mb-10 w-full">
-          <div className="bg-white rounded-lg box-border border-1  h-14">
+      
+      {/* 상단 제목 */}
+      <div className="h-20">
+        <p className="text-4xl font-bold text-white">Quiz</p>
+      </div>
+
+      {/* 메인 컨텐츠 영역 */}
+      <div className="flex-1">
+        <p className="text-2xl mt-4 mb-8">Select a range</p>
+        <div className="flex flex-col justify-between h-[70%]">
+          <div className="bg-white rounded-lg box-border h-14">
             <div className="p-3 flex ml-4">
               <p className="text-xl">Likes</p>
               <div className="flex ml-auto px-4 items-center">
@@ -53,8 +57,13 @@ export default function QuizPage() {
             </div>
           </div>
         </div>
-        <div className="h-1/4">
-          <p className="text-xl font-bold">Count</p>
+      </div>
+
+      {/* 하단 영역 */}
+      <div className="flex-1 justify-end">
+        {/* Count 선택 */}
+        <div className="mb-8 flex flex-col">
+          <p className="text-xl font-bold mb-2">Count</p>
           <select className="w-1/3 h-10 border-2 border-gray-300 rounded-lg p-2">
             <option value="10">10</option>
             <option value="20">20</option>
@@ -62,18 +71,16 @@ export default function QuizPage() {
           </select>
         </div>
 
-        <div className="">
-          <Link href="/quiz/problem">
-            <Button
-              id="start"
-              variant="white"
-              className="mt-2"
-            >
-              Start
-            </Button>
-          </Link>
-        </div>
+        {/* Start 버튼 */}
+        <Link href="/quiz/problem">
+          <Button
+            id="start"
+            variant="white"
+          >
+            Start
+          </Button>
+        </Link>
       </div>
-    </>
+    </div>
   );
 }
