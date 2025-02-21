@@ -26,7 +26,7 @@ const WordComponent = ({ currentWord, memberId } : WordComponentProps) => {
   const handleClick = async () => {
     const Likes = {
       word: currentWord.word_no,
-      member: memberId,
+      user: memberId,
     };
 
     setOptimisticLiked(!optimisticLiked);
