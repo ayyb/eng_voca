@@ -6,9 +6,9 @@ import { z } from 'zod';
 import { authConfig } from './auth.config';
 import { Session } from "inspector";
 
-async function getUser(email: string): Promise<User | undefined> {
+async function getUser(id: string): Promise<User | undefined> {
     try {
-      const user = await sql<User>`SELECT * FROM members WHERE id=${email}`;
+      const user = await sql<User>`SELECT * FROM users WHERE username=${id}`;
       return user.rows[0];
     } catch (error) {
       console.error('Failed to fetch user:', error);

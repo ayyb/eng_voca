@@ -4,7 +4,7 @@ import BackButton from "@/components/common/BackButton";
 
 export default async function LikesPage() {
   const member = await fetchMember();
-  const memberId = member.no;
+  const memberId = member.id;
 
   return (
     <div className="p-8">

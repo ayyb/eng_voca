@@ -54,8 +54,8 @@ const LikeWordsList: React.FC<LikeWordsListProps> = ({
   const handleDelete = async (word: Words) => {
     if (confirm("정말 삭제하시겠습니까?")) {
       const targetWord = {
-        word: word.word_no,
-        member: memberId,
+        word: word.id,
+        user: memberId,
       };
       await deleteLikeWord(targetWord);
       console.log("삭제");
@@ -70,7 +70,7 @@ const LikeWordsList: React.FC<LikeWordsListProps> = ({
   const handleHidden = (id: number) => {
     setLikeWords((prev) =>
       prev.map((word) =>
-        word.word_no === id ? { ...word, isHidden: !word.isHidden } : word
+        word.id === id ? { ...word, isHidden: !word.isHidden } : word
       )
     );
   };
@@ -88,22 +88,22 @@ const LikeWordsList: React.FC<LikeWordsListProps> = ({
         <SortOptions onSortChange={handleSortChange} />
         <div className="flex flex-col space-y-4 w-full">
           {likeWords.map((likeWord) => (
-            <div key={likeWord.word_no} className="bg-white rounded-sm h-14">
+            <div key={likeWord.id} className="bg-white rounded-sm h-14">
               <div className="p-3 grid grid-cols-3 gap-6">
                 <p className="text-xl">{likeWord.word}</p>
                 <p className="text-xl">
-                  {likeWord.isHidden ? '' : likeWord.word_kr}
+                  {likeWord.isHidden ? '' : likeWord.definition_kr }
                 </p>
                 <div className="flex space-x-4 ml-auto">
                   {likeWord.isHidden ? (
                     <EyeSlashIcon
                       className="h-6 text-gray-500 cursor-pointer hover:text-black"
-                      onClick={() => handleHidden(likeWord.word_no)}
+                      onClick={() => handleHidden(likeWord.id)}
                     />
                   ) : (
                     <EyeIcon
                       className="h-6 text-gray-500 cursor-pointer hover:text-black"
-                      onClick={() => handleHidden(likeWord.word_no)}
+                      onClick={() => handleHidden(likeWord.id)}
                     />
                   )}
                   <TrashIcon

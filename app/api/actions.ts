@@ -1,5 +1,5 @@
 "use server"; // authV5 사용시 필요함.
-import { QueryResultRow, sql } from "@vercel/postgres";
+import { sql } from "@vercel/postgres";
 import { Word } from "@/app/lib/types";
 import { Words, Voca, QuizResult, Answers } from "@/app/lib/definitions";
 import { z } from "zod";
@@ -20,16 +20,16 @@ type State = {
   };
 };
 
-export async function createMember(
-  prevState: State,
-  formData: FormData
-): Promise<State> {
+
+// ✅ 회원 생성
+export async function createMember(prevState: State, formData: FormData): Promise<State> {
   try {
     const schema = z.object({
       id: z.string().min(1),
       pw: z.string().min(1),
       name: z.string().min(1),
     });
+
     const data = schema.parse({
       id: formData.get("id"),
       pw: formData.get("pw"),
@@ -37,153 +37,100 @@ export async function createMember(
     });
 
     await sql`
-      INSERT INTO members (id, pw, name, created_at, member_level)
-      VALUES (${data.id}, ${data.pw}, ${data.name}, now(), 1);
+      INSERT INTO users (username, password, name, created_at, member_level)
+      VALUES (${data.id}, ${data.pw}, ${data.name}, NOW(), 'BRONZE');
     `;
 
     revalidatePath("/home");
-    return { 
-      message: `Added to new Member`,
-      errors: {} 
-    };
+    return { message: `Added new member`, errors: {} };
   } catch (error) {
-    return { 
-      message: "Failed to create member",
-      errors: {
-        id: "Failed to create account",
-        password: "Please try again",
-        name: "Please try again",
-        passwordConfirm: "Please try again",
-
-      }
-    };
+    return { message: "Failed to create member", errors: { id: "Error creating member" } };
   }
 }
 
+// ✅ 회원 정보 조회
 export async function fetchMember(): Promise<MemberInfo> {
   try {
     const session = await auth();
+    if (!session?.user?.id) redirect("/login");
 
-    if (!session?.user?.id) {
-      // 로그인되지 않은 경우 처리 (예: 로그인 페이지로 리다이렉트)
-      redirect("/login");
-    }
-
-    const userId = session?.user?.id;
+    const userId = session.user.id;
 
     const data = await sql<MemberInfo>`
-        SELECT no, id, pw, name, TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at, member_level FROM members WHERE id = ${userId};
-      `;
+      SELECT id, username, name, 
+             TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at, member_level 
+      FROM users WHERE id = ${userId};
+    `;
 
-    if (data.rowCount === 0) {
-      throw new Error("Member not found");
-    }
-
-    // return NextResponse.json({ member: result.rows[0] }, { status: 200 });
-    // const latestInvoices = .map((invoice) => ({
-    //   ...invoice,
-    // }));
-    console.log("data", data.rows[0]);
+    if (data.rowCount === 0) throw new Error("Member not found");
     return data.rows[0];
   } catch (error) {
-    throw new Error("Error");
+    throw new Error("Error fetching member");
   }
 }
 
-export async function fetchLevelWords(
-  level: number,
-  memberId: string
-): Promise<Word[]> {
+// ✅ 단어 조회 (레벨별)
+export async function fetchLevelWords(level?: string): Promise<Word[]> {
   try {
-    let result;
-
-    // If level is 9, fetch all words randomly
-    if (level === 9) {
-      result = await sql<Word>`
-             SELECT 
-        vocas.*,
-        EXISTS (
-          SELECT 1 
-          FROM likes 
-          WHERE likes.voca_id = vocas.word_no 
-        ) as liked
+    const result = await sql<Word>`
+      SELECT vocas.*
       FROM vocas
       ORDER BY RANDOM()
-      LIMIT 30;
-      `;
-    } else {
-      result = await sql<Word>`
-              SELECT 
-        vocas.*,
-        EXISTS (
-          SELECT 1 
-          FROM likes 
-          WHERE likes.voca_id = vocas.word_no 
-          AND likes.member_id = ${memberId}
-        ) as liked
-      FROM vocas
-      WHERE vocas.word_level = ${level};
-      `;
-    }
+      LIMIT 10;
+    `;
 
-    if (result.rowCount === 0) {
-      throw new Error("No words found for this level");
-    }
-
+    if (result.rowCount === 0) throw new Error("No words found");
     return result.rows;
   } catch (error) {
-    throw new Error("error");
+    throw new Error("Error fetching words");
   }
 }
 
-export async function addLikeWord(Likes: { member: number; word: number }) {
+// ✅ 좋아요 추가
+export async function addLikeWord(Likes: { user: number; word: number }) {
   try {
-    const result = await sql`
-      INSERT INTO likes (member_id, voca_id, liked_at) VALUES (${Likes.member}, ${Likes.word}, CURRENT_DATE);
+    await sql`
+      INSERT INTO likes (user_id, voca_id, created_at) 
+      VALUES (${Likes.user}, ${Likes.word}, NOW());
     `;
-    return { message: `Added to new Like Word` };
+    return { message: "Added to Like Word" };
   } catch (error) {
-    throw new Error("error");
+    throw new Error("Error adding like word");
   }
 }
 
-export async function deleteLikeWord(Likes: { member: number; word: number }) {
+// ✅ 좋아요 삭제
+export async function deleteLikeWord(Likes: { user: number; word: number }) {
   try {
-    const result = await sql`
-          DELETE FROM likes
-      WHERE member_id = ${Likes.member} AND voca_id = ${Likes.word};
+    await sql`
+      DELETE FROM likes WHERE user_id = ${Likes.user} AND voca_id = ${Likes.word};
     `;
-
-    return { message: `deleted to new Like Word` };
+    return { message: "Deleted Like Word" };
   } catch (error) {
-    throw new Error("error");
+    throw new Error("Error deleting like word");
   }
 }
 
-export async function fetchLikeWords(member: number): Promise<Words[]> {
+// ✅ 좋아요한 단어 조회
+export async function fetchLikeWords(user: number): Promise<Word[]> {
   try {
-    const data = await sql<Words>`
-      SELECT * FROM likes WHERE member_id = ${member};
+    const data = await sql<Word>`
+      SELECT vocas.* 
+      FROM likes 
+      JOIN vocas ON likes.voca_id = vocas.id 
+      WHERE likes.user_id = ${user};
     `;
-
-    if (data.rowCount === 0) {
-      throw new Error("No words found for this level");
-    }
-
-    const latestInvoices = data.rows.map((invoice) => ({
-      ...invoice,
-    }));
-    return latestInvoices;
+    return data.rows;
   } catch (error) {
-    throw new Error("error");
+    throw new Error("Error fetching liked words");
   }
 }
 
-//단어자체 조회
+// ✅ 단어 조회
 export async function fetchWord(vocaId: number): Promise<Voca> {
   try {
     const data = await sql<Voca>`
-      SELECT * FROM vocas WHERE no = ${vocaId};
+      SELECT * FROM vocas WHERE id = ${vocaId}; -- 'no' → 'id' 변경
     `;
 
     return data.rows[0];
@@ -193,33 +140,39 @@ export async function fetchWord(vocaId: number): Promise<Voca> {
   }
 }
 
-//특정회원의 좋아요한 단어를 조회
+// ✅ 특정 회원이 좋아요한 단어 조회
 export async function fetchLikeWord(): Promise<Words[]> {
   try {
     const session = await auth();
     console.log("session", session);
+
     if (!session?.user?.id) {
-      // 로그인되지 않은 경우 처리 (예: 로그인 페이지로 리다이렉트)
       redirect("/login");
     }
+
     const userId = session?.user?.id;
 
     const data = await sql<Words>`
-  SELECT vocas.word_no, vocas.word, vocas.definition, likes.liked_at, vocas.word_kr, vocas.example, vocas.example_kr
-FROM
-  likes
-JOIN
-  vocas ON likes.voca_id = vocas.word_no
-WHERE
-  likes.member_id = (select no from members where id= ${userId});
+      SELECT 
+        vocas.id AS voca_id, 
+        vocas.word, 
+        vocas.definition, 
+        likes.created_at AS liked_at, 
+        vocas.definition_kr,
+        vocas.example, 
+        vocas.example_kr
+      FROM likes
+      JOIN vocas ON likes.voca_id = vocas.id
+      WHERE likes.user_id = (SELECT id FROM users WHERE id = ${userId});
     `;
-
+    console.log("data", data.rows);
     return data.rows;
   } catch (error) {
-    console.error("Error fetching word:", error);
-    throw new Error("Error fetching word");
+    console.error("Error fetching liked words:", error);
+    throw new Error("Error fetching liked words");
   }
 }
+
 
 export async function authenticate(
   state: State | undefined,
@@ -269,7 +222,7 @@ export async function authenticate(
           };
         default:
           return {
-            message: "로그인 처리 중 오류가 발생했습니다",
+            message: "login fail, 로그인 처리 중 오류가 발생했습니다",
             errors: {
               id: "",
               password: ""
@@ -281,55 +234,59 @@ export async function authenticate(
   }
 }
 
-//vocas에서 example과 word를 추출해서 새로운 data로 생성
+// ✅ 퀴즈 문제 생성 (랜덤 10개)
 export async function fetchQuiz() {
   try {
     const data = await sql<Answers>`
-      SELECT word, example, example_kr
-      FROM vocas
-      ORDER BY RANDOM()
-      LIMIT 10;
+      SELECT word, example, example_kr FROM vocas ORDER BY RANDOM() LIMIT 10;
     `;
-
     return data.rows;
   } catch (error) {
-    throw new Error("error");
+    throw new Error("Error fetching quiz");
   }
 }
 
-//vocas에서 단어만 추출해서 choice목록으로 만듬
+// ✅ 퀴즈 보기 선택지 생성 (랜덤 3개)
 export async function fetchChoiceWords() {
   try {
     const data = await sql<Choice>`
-      SELECT word
-      FROM vocas
-      ORDER BY RANDOM()
-      LIMIT 3;
+      SELECT word FROM vocas ORDER BY RANDOM() LIMIT 3;
     `;
-
     return data.rows;
   } catch (error) {
-    throw new Error("error");
+    throw new Error("Error fetching choice words");
   }
 }
 
-//점수 계산
-const result = { score: 0, total: 0 };
 
-//정답
-export async function scoreCalculation(correct: number, sum: number) {
-  console.log("점수", correct);
-  result.score = correct;
-  result.total = sum;
-}
 
+
+
+
+
+// //점수 계산
+// const result = { score: 0, total: 0 };
+
+// //정답
+// export async function scoreCalculation(correct: number, sum: number) {
+//   console.log("점수", correct);
+//   result.score = correct;
+//   result.total = sum;
+// }
+
+// ✅ 퀴즈 점수 조회
 export async function fetchScore() {
   try {
     const session = await auth();
     const userId = session?.user?.id;
     console.log("userId", userId);
+
     const data = await sql`
-      SELECT score, total_count FROM quiz_results WHERE userid = ${userId} ORDER BY created_at DESC LIMIT 1;
+      SELECT score, total_count 
+      FROM quiz_results 
+      WHERE user_id = ${userId} 
+      ORDER BY created_at DESC 
+      LIMIT 1;
     `;
     
     // 데이터가 없는 경우 기본값 반환
@@ -337,42 +294,47 @@ export async function fetchScore() {
       return { score: 0, total: 0 };
     }
     
-    const score = { score: data.rows[0].score, total: data.rows[0].total_count };
-    return score;
+    return { 
+      score: data.rows[0].score, 
+      total: data.rows[0].total_count 
+    };
   } catch (error) {
-    // 에러 발생시에도 기본값 반환
     console.error("점수 조회 중 오류 발생:", error);
     return { score: 0, total: 0 };
   }
 }
 
-let reviewQuizList: QuizResult[] = [];
-
+// ✅ 퀴즈 결과 저장
 export async function setQuizList(content: QuizResult) {
-  // 리뷰를 위한 데이터
-  // answers 배열을 JSON 문자열로 변환
-  const answersJson = JSON.stringify(content.answers);
   try {
     const session = await auth();
     const userId = session?.user?.id;
+    
+    // answers 배열을 JSON 문자열로 변환 후 JSONB로 변환
+    const answersJson = JSON.stringify(content.answers);
 
     await sql`
-        INSERT INTO quiz_results (userId, score, total_count, answers)
-        VALUES (${userId}, ${content.score}, ${content.total_count}, ${answersJson})
-        RETURNING *;
-      `;
-    return { message: ''}
+      INSERT INTO quiz_results (user_id, score, total_count, answers)
+      VALUES (${userId}, ${content.score}, ${content.total_count}, ${answersJson}::jsonb);
+    `;
+
+    return { message: 'Quiz result saved' };
   } catch (error) {
-    throw new Error("error");
+    console.error("Error saving quiz result:", error);
+    throw new Error("Error saving quiz result");
   }
 }
 
-export async function fetchLearningProgress(memberId: number) {
+// ✅ 학습 진행도 조회
+export async function fetchLearningProgress() {
+  const session = await auth();
+  const userId = session?.user?.id;
+
   try {
     const data = await sql`
       SELECT current_progress, total_words 
       FROM learning_progress 
-      WHERE member_id = ${memberId}
+      WHERE user_id = ${userId};
     `;
     
     if (data.rows.length === 0) {
@@ -389,16 +351,20 @@ export async function fetchLearningProgress(memberId: number) {
   }
 }
 
+// ✅ 최근 퀴즈 결과 조회
 export async function getQuizList() {
   try {
     const session = await auth();
     const userId = session?.user?.id;
-    
+
     const data = await sql`
-      SELECT answers FROM quiz_results 
-      WHERE userId = ${userId}
-      ORDER BY created_at DESC limit 1;
+      SELECT answers 
+      FROM quiz_results 
+      WHERE user_id = ${userId}
+      ORDER BY created_at DESC 
+      LIMIT 1;
     `;
+
     return data.rows[0].answers;
   } catch (error) {
     console.error("Error fetching quiz result:", error);
@@ -406,20 +372,70 @@ export async function getQuizList() {
   }
 }
 
-export async function updateLearningProgress(memberId: number, progress: number, total: number) {
+
+// ✅ 학습 진행도 업데이트
+export async function updateLearningProgress(progress: number, total: number) {
+  const session = await auth();
+  const userId = parseInt(session?.user?.id ?? "0");
+
+  console.log("userId", userId);
+  console.log("progress", progress);
+  console.log("total", total);
+
   try {
     await sql`
-      INSERT INTO learning_progress (member_id, current_progress, total_words)
-      VALUES (${memberId}, ${progress}, ${total})
-      ON CONFLICT (member_id) 
+      INSERT INTO learning_progress (user_id, current_progress, total_words, study_date, created_at, updated_at)
+      VALUES (${userId}, ${progress}, ${total}, CURRENT_DATE, NOW(), NOW())
+      ON CONFLICT (user_id, study_date) 
       DO UPDATE SET 
-        current_progress = ${progress},
-        total_words = ${total},
-        updated_at = CURRENT_TIMESTAMP
+        current_progress = ${progress}, 
+        total_words = ${total}, 
+        updated_at = NOW();
     `;
+
     return { success: true };
   } catch (error) {
-    console.error('학습 진행도 업데이트 중 오류 발생:', error);
-    throw new Error('학습 진행도 업데이트 실패');
+    console.error("Error updating learning progress:", error);
+    throw new Error("Error updating learning progress");
+  }
+}
+
+
+// ✅ 현재 비밀번호 확인
+export async function verifyCurrentPassword(currentPassword: string) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) redirect('/login');
+
+    const data = await sql`
+      SELECT password FROM users 
+      WHERE id = ${session.user.id} 
+      AND password = ${currentPassword};
+    `;
+    
+    return { isValid: data.rows.length > 0 };
+
+  } catch (error) {
+    throw new Error('비밀번호 확인 실패');
+  }
+}
+
+// ✅ 비밀번호 변경
+export async function updatePassword(newPassword: string) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) redirect('/login');
+
+    await sql`
+      UPDATE users 
+      SET 
+        password = ${newPassword},
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${session.user.id};
+    `;
+    
+    return { message: "success" };
+  } catch (error) {
+    throw new Error('비밀번호 변경 실패');
   }
 }

@@ -46,7 +46,7 @@ export default async function MemberPage() {
             <input
               type="text"
               className="border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
-              value={memberInfo.id}
+              value={memberInfo.username}
               readOnly
             />
           </div>
@@ -56,7 +56,7 @@ export default async function MemberPage() {
             <input
               type="text"
               className="border-b-2 border-gray-300 p-2 focus:outline-none focus:border-blue-500"
-              value={getMemberLevelText(memberInfo.member_level)}
+              value={memberInfo.member_level}
               readOnly
             />
           </div>

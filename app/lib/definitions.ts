@@ -1,7 +1,7 @@
 export type MemberInfo = {
-  no: number;
-  name: string;
-  id: string;
+  id: number;
+  name: string; //userRealName
+  username : string; //userId
   created_at: string;
   member_level: number;
 };
@@ -12,6 +12,7 @@ export type Words = {
   word: string;
   word_kr: string;
   definition: string;
+  definition_kr: string;
   example: string;
   example_kr: string;
   liked_at: string; // Assuming this is part of the data

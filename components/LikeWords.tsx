@@ -3,7 +3,6 @@ import { EyeIcon, TrashIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import { LikeWordsProps } from "@/app/lib/definitions";
 import { useEffect, useState } from "react";
 import { deleteLikeWord } from "@/app/api/actions";
-import { revalidatePath } from "next/cache";
 import { useRouter } from "next/navigation";
 
 export default function LikeWords({ likeWord,memberId }: LikeWordsProps) {
@@ -20,8 +19,8 @@ export default function LikeWords({ likeWord,memberId }: LikeWordsProps) {
   const handleDelete = async() => {
     if(confirm("정말 삭제하시겠습니까?")){
     const targetWord ={
-      word: likeWord.word_no,
-      member: memberId,
+      word: likeWord.id,
+      user: memberId,
     }
     await deleteLikeWord(targetWord);
       console.log("삭제");

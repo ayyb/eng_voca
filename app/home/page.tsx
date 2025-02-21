@@ -2,7 +2,7 @@
 import React from "react";
 import { HeartIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
-import { fetchMember, fetchScore, fetchLearningProgress } from "@/app/api/actions";
+import { fetchMember, fetchScore } from "@/app/api/actions";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { LearningProgress } from "@/ui/home/LearningProgress";
@@ -19,10 +19,9 @@ export default async function Page() {
   }
 
   // 병렬로 데이터 fetching
-  const [member, userScore, learningProgress] = await Promise.all([
+  const [member, userScore] = await Promise.all([
     fetchMember(),
     fetchScore(),
-    fetchLearningProgress(6)
   ]);
 
   // 3. 데이터가 없는 경우 처리
@@ -33,7 +32,7 @@ export default async function Page() {
   return (
     <div className="p-4 h-full">
       <UserInfo member={member} />
-      <LearningProgress initialProgress={learningProgress.progress} />
+      <LearningProgress />
 
       <div className="flex space-x-4 w-full">
         <LikeWords />

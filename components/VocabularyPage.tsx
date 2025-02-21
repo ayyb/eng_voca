@@ -10,7 +10,7 @@ import { addLikeWord, deleteLikeWord, updateLearningProgress } from "@/app/api/a
 
 interface VocabularyPageProps {
   words: Word[];
-  memberId: string;
+  memberId: number;
 }
 
 export default function VocabularyPage({ words, memberId }: VocabularyPageProps) {
@@ -27,7 +27,6 @@ export default function VocabularyPage({ words, memberId }: VocabularyPageProps)
     
     try {
       await updateLearningProgress(
-        parseInt(memberId),
         nextIndex + 1,
         localWords.length
       );
@@ -46,13 +45,13 @@ export default function VocabularyPage({ words, memberId }: VocabularyPageProps)
   const handleClick = async () => {
     try {
       const Likes = {
-        word: currentWord.word_no,
-        member: memberId,
+        user: memberId,
+        word: currentWord.id,
       };
   
       // UI를 먼저 업데이트 -> optimistic update
       setLocalWords(prevWords => prevWords.map(word => 
-        word.word_no === currentWord.word_no 
+        word.id === currentWord.id 
           ? { ...word, liked: !word.liked }
           : word
       ));
@@ -67,7 +66,7 @@ export default function VocabularyPage({ words, memberId }: VocabularyPageProps)
   
       // 오류 발생 시 원래 상태로 복구
       setLocalWords(prevWords => prevWords.map(word => 
-        word.word_no === currentWord.word_no 
+        word.id === currentWord.id 
           ? { ...word, liked: currentWord.liked } // 기존 상태로 복구
           : word
       ));
@@ -105,10 +104,10 @@ export default function VocabularyPage({ words, memberId }: VocabularyPageProps)
         <div className="flex justify-center items-center flex-col h-1/2">
           <p className="font-bold text-6xl m-5">{currentWord.word}</p>
           <p>None</p>
-          <p className="m-5">[{currentWord.pronunce}]</p>
+          <p className="m-5">[{currentWord.pronunciation}]</p>
           {/* 한글뜻 */}
           {!isKoreanHidden && (
-            <p className="font-bold text-4xl m-8">{currentWord.word_kr}</p>
+            <p className="font-bold text-4xl m-8">{currentWord.definition_kr}</p>
           )}
           {/* 예문 */}
           <div className="flex justify-between w-full px-4">

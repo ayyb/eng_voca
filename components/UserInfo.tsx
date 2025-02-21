@@ -4,8 +4,9 @@ import { useEffect } from "react";
 
 interface UserInfoProps {
   member: {
-    id: string;
+    username: string;
     name: string;
+    created_at: string;
     member_level: number;
   };
 }
@@ -14,7 +15,7 @@ export function UserInfo({ member }: UserInfoProps) {
   const { setUser } = useUserStore();
 
   useEffect(() => {
-    setUser(member.id, member.name);
+    setUser(member.username, member.name);
   }, [member]);
 
   return (
