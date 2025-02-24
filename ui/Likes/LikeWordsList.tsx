@@ -1,20 +1,16 @@
 // LikeWordsList.tsx (클라이언트 컴포넌트)
 "use client";
 import { useEffect, useState } from "react";
-import LikeWords from "@/components/LikeWords";
 import SortOptions from "@/ui/Likes/SortOptions";
 import { Words, LikeWordsListProps } from "@/app/lib/definitions";
 import { EyeIcon, TrashIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import { deleteLikeWord,fetchLikeWord } from "@/app/api/actions";
 
 const LikeWordsList: React.FC<LikeWordsListProps> = ({
-  // initialWords,
   memberId,
 }) => {
-  // console.log("좋아요 단어리스트", initialWords);
 
   const [likeWords, setLikeWords] = useState<Words[]>([]); //likes List
-  // console.log("좋아요 단어리스트", likeWords);
   const [sortOrder, setSortOrder] = useState<string>("abc");
 
   useEffect(() => {
@@ -52,18 +48,28 @@ const LikeWordsList: React.FC<LikeWordsListProps> = ({
   };
   //삭제되면 새로 likeWokds를 불러옴
   const handleDelete = async (word: Words) => {
-    if (confirm("정말 삭제하시겠습니까?")) {
-      const targetWord = {
-        word: word.id,
-        user: memberId,
-      };
-      await deleteLikeWord(targetWord);
-      console.log("삭제");
-    } else {
-      return;
+    try {
+      console.log("word", word);
+      if (confirm("정말 삭제하시겠습니까?")) {
+        const targetWord = {
+          word: word.voca_id,
+          user: memberId,
+        };
+        
+        await deleteLikeWord(targetWord);
+        
+        // 삭제 후 좋아요 목록 다시 불러오기
+        const updatedWords = await fetchLikeWord();
+        const updatedWordsWithHiddenState = updatedWords.map((word) => ({
+          ...word,
+          isHidden: false,
+        }));
+        setLikeWords(updatedWordsWithHiddenState);
+      }
+    } catch (error) {
+      console.error("Error deleting word:", error);
+      alert("삭제 중 오류가 발생했습니다.");
     }
-    const newWords = likeWords.filter((likeWord) => likeWord.word_no !== word.word_no);
-    setLikeWords(newWords);
   };
 
   // 개별 단어의 숨김 상태를 토글하는 함수
