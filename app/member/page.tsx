@@ -1,22 +1,15 @@
 import { fetchMember } from "@/app/api/actions";
 import MemberDetail from "@/ui/member/MemberDetail";
 import BackButton from "@/components/common/BackButton";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
-const getMemberLevelText = (level: Number) => {
-  switch (level) {
-    case 1:
-      return "Beginner";
-    case 2:
-      return "Intermediate";
-    case 3:
-      return "Advanced";
-    default:
-      return "Unknown";
-  }
-};
-// MemberInfo 타입 정의
+export const dynamic = 'force-dynamic';
 
 export default async function MemberPage() {
+  const session = await auth();
+  if (!session?.user?.id) redirect('/login');
+
   const memberInfo = await fetchMember();
   
   return (

@@ -1,10 +1,13 @@
-import { fetchMember } from "@/app/api/actions";
 import LikeWordsList from "@/ui/Likes/LikeWordsList";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import BackButton from "@/components/common/BackButton";
 
 export default async function LikesPage() {
-  const member = await fetchMember();
-  const memberId = member.id;
+  const session = await auth();
+  if (!session?.user?.id) redirect('/login');
+  
+  const memberId = parseInt(session.user.id);
 
   return (
     <div className="p-8">

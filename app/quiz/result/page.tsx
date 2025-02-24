@@ -2,6 +2,8 @@ import Link from "next/link";
 import QuizScore from "@/ui/quiz/QuizScore";
 import { fetchScore } from "@/app/api/actions";
 
+export const dynamic = 'force-dynamic';
+
 export default async function ResultPage() {
   const result = await fetchScore();
   
