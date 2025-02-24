@@ -68,9 +68,15 @@ export default function Question({ initialQuiz, initialChoices }: QuestionProps)
     });
     
     const timer = setTimeout(() => {
-      nextQuiz(isAnswer, word);
       setSelectedChoice(null);
       setIsSelectable(true);
+      // alert 초기화 추가
+      setAlert({
+        isOpen: false,
+        message: '',
+        type: 'success'
+      });
+      nextQuiz(isAnswer, word);
     }, 2000);
 
     return () => clearTimeout(timer);

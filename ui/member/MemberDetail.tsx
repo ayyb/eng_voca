@@ -140,18 +140,18 @@ const MemberDetail = () => {
           </div>
 
           <div className="mt-8">
-            <Button onClick={() => setIsEditing(false)}>
+            <Button onClick={() => setIsEditing(false)} variant="confirm">
               OK
             </Button>
           </div>
         </div>
       ) : (
         <div className="space-y-6">
-          <Button onClick={() => setIsEditing(true)}>
+          <Button onClick={() => setIsEditing(true)} variant="confirm">
             Change Password
           </Button>
 
-          <Button variant="white" onClick={handleLogout}>
+          <Button variant="confirm" onClick={handleLogout}>
             Logout
           </Button>
         </div>

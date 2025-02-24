@@ -47,13 +47,13 @@ export default function SignInPage() {
           </div>
           {/* 버튼 */}
           <div className="flex flex-col flex-1 h-1/3 gap-4">
-            <Button>
+            <Button variant="secondary">
               <Link href="/home" className="flex items-center justify-center h-full w-full">
                 Sign in
               </Link>
             </Button>
 
-            <Button>
+            <Button variant="secondary">
               <Link href="/signup" className="flex items-center justify-center h-full w-full">
                 Sign up
               </Link>

@@ -68,12 +68,12 @@ export default function LoginForm() {
 
           {/* 버튼 그룹 */}
           <div className="space-y-6 w-full mb-12">
-            <Button type="submit">
+            <Button type="submit" variant="secondary">
               Sign in
             </Button>
 
             <Link href="/signup" className="block">
-              <Button variant="white">
+              <Button variant="secondary">
                 Sign up
               </Button>
             </Link>

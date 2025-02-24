@@ -8,6 +8,9 @@
     background-size: cover;
     background-position: center;
   }
+.bg-confirm {
+  background-color: RGB(188, 230, 255);
+}
 
   /* purge 된 색상 강제 추가가 필요함 - 강제로 감지하게 만들 색상*/
   .text-green-500, .text-blue-500, .text-red-500 { /* Tailwind가 감지하게끔 추가 */}

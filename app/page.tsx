@@ -26,11 +26,11 @@ const HomePage = async () => {
 
         {/* 하단 버튼 영역 */}
         <div className="space-y-6 w-full mb-12">
-          <Link href="/home" className="block">
-            <Button>Start as Guest</Button>
+          <Link href="/home" className="block" >
+            <Button variant="secondary">Start as Guest</Button>
           </Link>
 
-          <Button>
+          <Button variant="secondary">
             <a href="/login" className="block">
               Login
             </a>
