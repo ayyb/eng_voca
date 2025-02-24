@@ -9,6 +9,7 @@ import { redirect } from "next/navigation";
 import { signIn, auth, signOut } from "@/auth";
 import { AuthError } from "next-auth";
 import { useUserStore } from "@/store/userStore";
+import { VocaLevel } from '@/app/lib/definitions';
 
 type State = {
   message: string;
@@ -70,13 +71,41 @@ export async function fetchMember(): Promise<MemberInfo> {
 }
 
 // ✅ 단어 조회 (레벨별)
-export async function fetchLevelWords(level?: string): Promise<Word[]> {
+export async function fetchLevelWords(level: string): Promise<Word[]> {
   try {
+    let wordLevel: VocaLevel;
+    const TODAY_LIMIT = 10;
+    const LEVEL_LIMIT = 30;
+
+    switch (level) {
+      case 'today':
+        const result = await sql<Word>`
+          SELECT * FROM vocas 
+          ORDER BY RANDOM() 
+          LIMIT ${TODAY_LIMIT};
+        `;
+        return result.rows;
+      case 'basic':
+        wordLevel = VocaLevel.BASIC;
+        break;
+      case 'middle':
+        wordLevel = VocaLevel.MIDDLE;
+        break;
+      case 'advance':
+        wordLevel = VocaLevel.ADVANCE;
+        break;
+      case 'expert':
+        wordLevel = VocaLevel.EXPERT;
+        break;
+      default:
+        throw new Error("Invalid level");
+    }
+
     const result = await sql<Word>`
-      SELECT vocas.*
-      FROM vocas
-      ORDER BY RANDOM()
-      LIMIT 10;
+      SELECT * FROM vocas 
+      WHERE word_level = ${wordLevel}
+      ORDER BY RANDOM() 
+      LIMIT ${LEVEL_LIMIT};
     `;
 
     if (result.rowCount === 0) throw new Error("No words found");
@@ -234,14 +263,82 @@ export async function authenticate(
   }
 }
 
-// ✅ 퀴즈 문제 생성 (랜덤 10개)
-export async function fetchQuiz() {
+// ✅ 퀴즈용 단어 조회
+export async function fetchQuiz(levels: string[], count: number): Promise<Word[]> {
   try {
-    const data = await sql<Answers>`
-      SELECT word, example, example_kr FROM vocas ORDER BY RANDOM() LIMIT 10;
-    `;
-    return data.rows;
+    const hasLikes = levels.includes('likes');
+    const otherLevels = levels.filter(level => level !== 'likes');
+    
+    // likes만 선택된 경우 먼저 확인
+    if (hasLikes && otherLevels.length === 0) {
+      const session = await auth();
+      if (!session?.user?.id) redirect('/login');
+      
+      // 좋아요 단어 수 먼저 확인
+      const likeCount = await sql`
+        SELECT COUNT(*) as count 
+        FROM likes 
+        WHERE user_id = ${session.user.id}
+      `;
+      
+      if (likeCount.rows[0].count === 0) {
+        throw new Error("좋아요된 단어가 없습니다. 다른 카테고리를 선택해주세요.");
+      }
+    }
+
+    const wordsPerLevel = Math.floor(count / (hasLikes ? levels.length : otherLevels.length));
+    let queries = [];
+    
+    if (hasLikes) {
+      const session = await auth();
+      if (!session?.user?.id) redirect('/login');
+      
+      queries.push(sql<Word>`
+        SELECT DISTINCT vocas.* 
+        FROM vocas 
+        JOIN likes ON vocas.id = likes.voca_id 
+        WHERE likes.user_id = ${session.user.id}
+        ORDER BY RANDOM() 
+        LIMIT ${wordsPerLevel}
+      `);
+    }
+    
+    // 레벨별 단어 쿼리
+    otherLevels.forEach(level => {
+      let wordLevel;
+      switch (level) {
+        case 'basic': wordLevel = VocaLevel.BASIC; break;
+        case 'middle': wordLevel = VocaLevel.MIDDLE; break;
+        case 'advance': wordLevel = VocaLevel.ADVANCE; break;
+        case 'expert': wordLevel = VocaLevel.EXPERT; break;
+      }
+      
+      queries.push(sql<Word>`
+        SELECT * FROM vocas 
+        WHERE word_level = ${wordLevel}
+        ORDER BY RANDOM() 
+        LIMIT ${wordsPerLevel}
+      `);
+    });
+    
+    // 모든 쿼리 실행
+    const results = await Promise.all(queries);
+    
+    // 결과 합치기 및 섞기
+    const allWords = results.flatMap(result => result.rows);
+    
+    // 결과를 랜덤하게 섞기
+    for (let i = allWords.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [allWords[i], allWords[j]] = [allWords[j], allWords[i]];
+    }
+    
+    return allWords.slice(0, count);
   } catch (error) {
+    console.error('Error fetching quiz:', error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
     throw new Error("Error fetching quiz");
   }
 }
@@ -437,5 +534,23 @@ export async function updatePassword(newPassword: string) {
     return { message: "success" };
   } catch (error) {
     throw new Error('비밀번호 변경 실패');
+  }
+}
+
+// ✅ 좋아요 개수 조회
+export async function getLikesCount(): Promise<number> {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) redirect('/login');
+
+    const result = await sql`
+      SELECT COUNT(*) as count 
+      FROM likes 
+      WHERE user_id = ${session.user.id}
+    `;
+    return parseInt(result.rows[0].count);
+  } catch (error) {
+    console.error('Error fetching likes count:', error);
+    throw new Error('Failed to fetch likes count');
   }
 }

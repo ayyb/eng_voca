@@ -6,18 +6,13 @@ import { redirect } from "next/navigation";
 
 export default async function Page({ params }: { params: { level: string } }) {
   const session = await auth();
-  const level = params.level;
-  // const memberId = parseInt(session?.user?.id ?? "0");
-
-  // 또는 더 안전한 방식:
   if (!session?.user?.id) {
     redirect('/login');
   }
   const memberId = parseInt(session.user.id);
 
-  // 초기 데이터만 서버에서 가져옴
-  const initialWords = await fetchLevelWords(level);
+  // level 파라미터 전달
+  const initialWords = await fetchLevelWords(params.level);
 
-  // 클라이언트 컴포넌트에 초기 데이터 전달
   return <VocabularyPage words={initialWords} memberId={memberId} />;
 }

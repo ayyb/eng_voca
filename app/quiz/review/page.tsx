@@ -8,19 +8,17 @@ export default async function ReviewPage() {
   //사용자의 퀴즈 결과를 보여준다
   //퀴즈결과를 받아와서 보여줌
   //예제
-  const QuizResults = await getQuizList();
-  console.log("리뷰 남은거?", QuizResults);
+  const quizList = await getQuizList();
+  console.log("리뷰 남은거?", quizList);
   return (
-    <div className="flex flex-col h-screen">
-      {/* 상단 영역 */}
-      <div className="flex items-center h-20 px-4">
+    <div className="p-8 pb-24">  {/* 하단 패딩 추가 */}
+      <div className="mb-8">
         <h1 className="text-4xl font-bold text-white">Review</h1>
       </div>
 
-      {/* 스크롤 가능한 리뷰 목록 영역 */}
-      <div className="flex-1 overflow-y-auto px-4 pb-4">
-        {QuizResults.map((item:QuizAnswer, idx:number) => (
-          <QuizReview key={idx} item={item} />
+      <div className="space-y-4 overflow-y-auto">  {/* 스크롤 가능한 영역 */}
+        {quizList.map((item:QuizAnswer, index:number) => (
+          <QuizReview key={index} item={item} />
         ))}
       </div>
     </div>

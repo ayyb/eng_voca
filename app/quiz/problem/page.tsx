@@ -12,8 +12,15 @@ const shuffleArray = (array: Choice[]) => {
 };
 
 
-export default async function ProblemPage() {
-  const quiz = await fetchQuiz();
+export default async function ProblemPage({
+  searchParams
+}: {
+  searchParams: { levels: string; count: string }
+}) {
+  const levels = searchParams.levels?.split(',') || [];
+  const count = parseInt(searchParams.count) || 10;
+
+  const quiz = await fetchQuiz(levels, count);
   const updateQuiz = quiz.map((row: any) => {
     // 정규식을 올바르게 생성합니다.
     const regex = new RegExp(row.word, "gi");

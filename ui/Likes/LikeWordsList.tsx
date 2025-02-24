@@ -17,12 +17,10 @@ const LikeWordsList: React.FC<LikeWordsListProps> = ({
     async function fetchAndSetLikeWords() {
       try {
         const words = await fetchLikeWord(); // userId 값을 사용하여 데이터 페칭
-        console.log("좋아요 단어리스트", words);
         const wordsWithHiddenState = words.map((word) => ({
           ...word,
           isHidden: false,
         }));
-        console.log('wordsWithHiddenState',wordsWithHiddenState);
         setLikeWords(wordsWithHiddenState);
       } catch (error) {
         console.error("Error fetching like words:", error);
@@ -94,7 +92,7 @@ const LikeWordsList: React.FC<LikeWordsListProps> = ({
         <SortOptions onSortChange={handleSortChange} />
         <div className="flex flex-col space-y-4 w-full">
           {likeWords.map((likeWord) => (
-            <div key={likeWord.id} className="bg-white rounded-sm h-14">
+            <div key={likeWord.voca_id} className="bg-white rounded-sm h-14">
               <div className="p-3 grid grid-cols-3 gap-6">
                 <p className="text-xl">{likeWord.word}</p>
                 <p className="text-xl">

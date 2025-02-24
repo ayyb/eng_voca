@@ -43,7 +43,7 @@ export default async function Page() {
       <div className="bg-white p-10 my-4 rounded-xl">
         <p className="text-3xl font-bold">Vocabulary</p>
         <p className="text-sm mt-3">Today's random 10 words</p>
-        <Link href="/home/vocabulary/9">
+        <Link href="/home/vocabulary/today">
           <button
             className="bg-blue-200 text-white p-2 mt-2 rounded"
             id="start"
@@ -56,7 +56,7 @@ export default async function Page() {
       {/* 하단 레벨 바로가기 */}
       <h2 className="mt-4 text-3xl text-white mb-6 font-bold">Levels</h2>
       <div className="grid grid-cols-2 gap-4">
-        <Link href="/home/vocabulary/1">
+        <Link href="/home/vocabulary/basic">
           <div className="bg-red-100 rounded-lg h-32 p-4 flex flex-col justify-between">
             <div>
               <h3 className="text-xl">Beginner</h3>
@@ -68,7 +68,7 @@ export default async function Page() {
           </div>
         </Link>
 
-        <Link href="/home/vocabulary/2">
+        <Link href="/home/vocabulary/middle">
           <div className="bg-yellow-100 rounded-lg h-32 p-4 flex flex-col justify-between">
             <div>
               <h3 className="text-xl">Intermediate</h3>
@@ -80,7 +80,7 @@ export default async function Page() {
           </div>
         </Link>
 
-        <Link href="/home/vocabulary/3">
+        <Link href="/home/vocabulary/advance">
           <div className="bg-blue-100 rounded-lg h-32 p-4 flex flex-col justify-between">
             <div>
               <h3 className="text-xl">Advanced</h3>
@@ -92,7 +92,7 @@ export default async function Page() {
           </div>
         </Link>
 
-        <Link href="/home/vocabulary/4">
+        <Link href="/home/vocabulary/expert">
           <div className="bg-green-100 rounded-lg h-32 p-4 flex flex-col justify-between">
             <div>
               <h3 className="text-xl">Expert</h3>

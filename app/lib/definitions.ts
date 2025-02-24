@@ -76,3 +76,11 @@ export interface Answers {
   example: string;
   example_kr: string;
 }
+
+export enum VocaLevel {
+  TODAY = 'today',
+  BASIC = 'A1',
+  MIDDLE = 'B1',
+  ADVANCE = 'C1',
+  EXPERT = 'C2'
+}
