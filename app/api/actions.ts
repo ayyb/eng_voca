@@ -10,6 +10,7 @@ import { signIn, auth, signOut } from "@/auth";
 import { AuthError } from "next-auth";
 import { useUserStore } from "@/store/userStore";
 import { VocaLevel } from '@/app/lib/definitions';
+import bcrypt from 'bcryptjs';
 
 type State = {
   message: string;
@@ -37,9 +38,12 @@ export async function createMember(prevState: State, formData: FormData): Promis
       name: formData.get("name"),
     });
 
+    // 비밀번호 해시화
+    const hashedPassword = await bcrypt.hash(data.pw, 10);
+
     await sql`
       INSERT INTO users (username, password, name, created_at, member_level)
-      VALUES (${data.id}, ${data.pw}, ${data.name}, NOW(), 'BRONZE');
+      VALUES (${data.id}, ${hashedPassword}, ${data.name}, NOW(), 'BRONZE');
     `;
 
     revalidatePath("/home");
@@ -76,15 +80,62 @@ export async function fetchLevelWords(level: string): Promise<Word[]> {
     let wordLevel: VocaLevel;
     const TODAY_LIMIT = 10;
     const LEVEL_LIMIT = 30;
+    const session = await auth();
+    const userId = session?.user?.id;
 
     switch (level) {
       case 'today':
-        const result = await sql<Word>`
+        // 오늘 날짜 구하기
+        const today = new Date().toISOString().split('T')[0];
+        
+        // 1. 먼저 오늘 날짜에 해당하는 단어 세트가 있는지 확인
+        const existingSet = await sql`
+          SELECT voca_ids FROM daily_word_sets 
+          WHERE user_id = ${userId} AND study_date = ${today}::date;
+        `;
+        
+        // 2. 이미 오늘 날짜의 단어 세트가 있으면 해당 단어들 반환
+        if (existingSet.rows.length > 0 && existingSet.rows[0].voca_ids) {
+          // JSON 문자열에서 배열로 변환
+          const vocaIds = JSON.parse(existingSet.rows[0].voca_ids);
+          
+          // 각 ID에 대해 개별적으로 쿼리하고 결과를 합침
+          const words: Word[] = [];
+          for (const id of vocaIds) {
+            const result = await sql<Word>`
+              SELECT * FROM vocas WHERE id = ${id};
+            `;
+            if (result.rows.length > 0) {
+              words.push(result.rows[0]);
+            }
+          }
+          
+          return words;
+        }
+        
+        // 3. 오늘 날짜의 단어 세트가 없으면 랜덤으로 10개 선택하여 저장
+        const randomWords = await sql<Word>`
           SELECT * FROM vocas 
           ORDER BY RANDOM() 
           LIMIT ${TODAY_LIMIT};
         `;
-        return result.rows;
+        
+        if (randomWords.rows.length > 0) {
+          // 선택된 단어 ID 배열 생성
+          const vocaIds = randomWords.rows.map(word => word.id);
+          // 배열을 JSON 문자열로 변환
+          const vocaIdsJson = JSON.stringify(vocaIds);
+          
+          // 날짜별 단어 세트 저장
+          await sql`
+            INSERT INTO daily_word_sets (user_id, study_date, voca_ids, created_at)
+            VALUES (${userId}, ${today}::date, ${vocaIdsJson}, NOW())
+            ON CONFLICT (user_id, study_date)
+            DO UPDATE SET voca_ids = ${vocaIdsJson}, updated_at = NOW();
+          `;
+        }
+        
+        return randomWords.rows;
       case 'basic':
         wordLevel = VocaLevel.BASIC;
         break;
@@ -111,6 +162,7 @@ export async function fetchLevelWords(level: string): Promise<Word[]> {
     if (result.rowCount === 0) throw new Error("No words found");
     return result.rows;
   } catch (error) {
+    console.error("단어 조회 중 오류 발생:", error);
     throw new Error("Error fetching words");
   }
 }
@@ -213,30 +265,25 @@ export async function authenticate(
 
     if(!id || !pw) {
       return {
-        message: "아이디와 비밀번호를 입력해주세요.",
+        message: "",
         errors: {
-          id: "아이디를 입력해주세요.",
-          password: "비밀번호를 입력해주세요."
+          id: id ? "" : "아이디를 입력해주세요.",
+          password: pw ? "" : "비밀번호를 입력해주세요."
         }
       }
     }
 
     // 로그인 시도
-    const result = await signIn("credentials", {
+    await signIn("credentials", {
       redirect: false,  // 자동 리다이렉트 방지
       ...Object.fromEntries(formData),
     });
 
-    if (result?.error) {
-      throw new Error(result.error);
-    }
-
     // 로그인 성공 시 store 업데이트
     useUserStore.getState().setUser(id, id); // 실제 이름 데이터로 수정 필요
-    
+    // return { message: "로그인 성공", errors: {} };
     // 리다이렉트
     redirect("/home");
-    return { message: "로그인 성공", errors: {} };
 
   } catch (error) {
     if (error instanceof AuthError) {
@@ -251,7 +298,7 @@ export async function authenticate(
           };
         default:
           return {
-            message: "login fail, 로그인 처리 중 오류가 발생했습니다",
+            message: "로그인 실패, 아이디 또는 패스워드를 확인해주세요.",
             errors: {
               id: "",
               password: ""
@@ -426,25 +473,36 @@ export async function setQuizList(content: QuizResult) {
 export async function fetchLearningProgress() {
   const session = await auth();
   const userId = session?.user?.id;
+  const today = new Date().toISOString().split('T')[0]; // 오늘 날짜
+
+  console.log("학습 진행도 조회 - userId:", userId);
+  console.log("학습 진행도 조회 - today:", today);
 
   try {
     const data = await sql`
-      SELECT current_progress, total_words 
+      SELECT current_progress, total_words, study_date 
       FROM learning_progress 
-      WHERE user_id = ${userId};
+      WHERE user_id = ${userId}
+      ORDER BY study_date DESC
+      LIMIT 1;
     `;
     
     if (data.rows.length === 0) {
-      return { progress: 0, total: 0 };
+      console.log("학습 진행도 없음, 초기값 반환");
+      return { progress: 0, total: 0, date: today };
     }
     
-    return {
+    const result = {
       progress: data.rows[0].current_progress,
-      total: data.rows[0].total_words
+      total: data.rows[0].total_words,
+      date: data.rows[0].study_date ? new Date(data.rows[0].study_date).toISOString().split('T')[0] : today
     };
+    
+    console.log("학습 진행도 조회 결과:", result);
+    return result;
   } catch (error) {
     console.error('학습 진행도 조회 중 오류 발생:', error);
-    return { progress: 0, total: 0 };
+    return { progress: 0, total: 0, date: today };
   }
 }
 
@@ -474,15 +532,37 @@ export async function getQuizList() {
 export async function updateLearningProgress(progress: number, total: number) {
   const session = await auth();
   const userId = parseInt(session?.user?.id ?? "0");
+  const today = new Date().toISOString().split('T')[0]; // 오늘 날짜
 
-  console.log("userId", userId);
-  console.log("progress", progress);
-  console.log("total", total);
+  console.log("학습 진행도 업데이트 요청:", { userId, progress, total, today });
 
   try {
+    // 1. 먼저 현재 저장된 진행도를 확인
+    const currentProgress = await sql`
+      SELECT current_progress 
+      FROM learning_progress 
+      WHERE user_id = ${userId} AND study_date = ${today}::date;
+    `;
+    
+    // 2. 현재 저장된 진행도가 있고, 새로운 진행도가 더 작거나 같으면 업데이트하지 않음
+    if (currentProgress.rows.length > 0) {
+      const savedProgress = currentProgress.rows[0].current_progress;
+      
+      if (progress <= savedProgress) {
+        console.log("이미 더 높은 진행도가 저장되어 있어 업데이트하지 않습니다:", { savedProgress, newProgress: progress });
+        return { 
+          success: true, 
+          message: "이미 더 높은 진행도가 저장되어 있어 업데이트하지 않습니다.",
+          progress: savedProgress
+        };
+      }
+    }
+    
+    // 3. 진행도가 더 크거나 저장된 진행도가 없는 경우에만 업데이트
+    console.log("진행도 업데이트:", { progress, total });
     await sql`
       INSERT INTO learning_progress (user_id, current_progress, total_words, study_date, created_at, updated_at)
-      VALUES (${userId}, ${progress}, ${total}, CURRENT_DATE, NOW(), NOW())
+      VALUES (${userId}, ${progress}, ${total}, ${today}::date, NOW(), NOW())
       ON CONFLICT (user_id, study_date) 
       DO UPDATE SET 
         current_progress = ${progress}, 
@@ -490,7 +570,11 @@ export async function updateLearningProgress(progress: number, total: number) {
         updated_at = NOW();
     `;
 
-    return { success: true };
+    return { 
+      success: true,
+      message: "진행도가 성공적으로 업데이트되었습니다.",
+      progress
+    };
   } catch (error) {
     console.error("Error updating learning progress:", error);
     throw new Error("Error updating learning progress");

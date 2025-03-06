@@ -17,6 +17,7 @@ export default function LoginForm() {
   const initialState: State = { message: "", errors: {} };
   const [errorMessage, formAction] = useFormState(authenticate, initialState);
 
+
   return (
     <div className="min-h-screen bg-white p-4">
       <div className="w-full max-w-md mx-auto h-screen flex flex-col p-8 
@@ -64,6 +65,11 @@ export default function LoginForm() {
                 )}
               </div>
             </div>
+            {errorMessage?.message && (
+              <span className="text-red-600 text-sm mt-1">
+                {errorMessage.message}
+              </span>
+            )}
           </div>
 
           {/* 버튼 그룹 */}

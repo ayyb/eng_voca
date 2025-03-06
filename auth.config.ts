@@ -5,6 +5,9 @@ export const authConfig = {
     signIn: "/login",
   },
   callbacks: {
+    signIn({ user }) {
+      return true;
+    },
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const isOnHome = nextUrl.pathname.startsWith("/home");

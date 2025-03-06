@@ -4,7 +4,7 @@ import type { User } from '@/app/lib/definitions';
 import { sql } from '@vercel/postgres';
 import { z } from 'zod';
 import { authConfig } from './auth.config';
-import { Session } from "inspector";
+import bcrypt from 'bcryptjs';
 
 async function getUser(id: string): Promise<User | undefined> {
     try {
@@ -39,7 +39,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             const user = await getUser(id);
             console.log('user',user)
             if (!user) return null;
-            // const passwordsMatch = await bcrypt.compare(password, user.password);
+            const passwordsMatch = await bcrypt.compare(pw, user.password);
+            if (!passwordsMatch) return null;
             return {
               ...user,
               customAttribute: 'customValue'
