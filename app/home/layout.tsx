@@ -11,8 +11,9 @@ export default function HomeLayout({
                     border border-gray-200 shadow-lg relative bg-customBlue">
         <div className="flex-1 pt-12">
           {children}
+          <NavFooter />  
         </div>
-        <NavFooter />
+        
       </div>
     </div>
   );

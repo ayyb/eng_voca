@@ -3,8 +3,8 @@ import { HomeIcon, UserIcon, PuzzlePieceIcon, SparklesIcon, HandThumbUpIcon } fr
 
 export default function NavFooter() {
   return (
-    <div className="fixed bottom-0 left-0 right-0 w-full bg-white shadow-lg border-t border-gray-200 z-10">
-      <div className="max-w-md mx-auto flex justify-around items-center py-3">
+    <div className="fixed bottom-0 inset-x-0 bg-white shadow-lg border-t border-gray-200 z-10 max-w-md mx-auto">
+      <div className="flex justify-around items-center py-3 max-w-md mx-auto">
         <Link href="/likes" className="flex flex-col items-center">
           <HandThumbUpIcon className="h-6 w-6 text-gray-700 hover:text-blue-500"/>
           <span className="text-xs mt-1 text-gray-600">좋아요</span>

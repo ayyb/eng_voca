@@ -57,7 +57,7 @@ export default async function Page() {
       <h2 className="mt-4 text-3xl text-white mb-6 font-bold">Levels</h2>
       <div className="grid grid-cols-2 gap-4">
         <Link href="/home/vocabulary/basic">
-          <div className="bg-red-100 rounded-lg h-32 p-4 flex flex-col justify-between">
+          <div className="bg-red-100 hover:bg-red-200 rounded-lg h-32 p-4 flex flex-col justify-between">
             <div>
               <h3 className="text-xl">Beginner</h3>
               <p className="text-sm mt-1">28 words</p>
@@ -69,7 +69,7 @@ export default async function Page() {
         </Link>
 
         <Link href="/home/vocabulary/middle">
-          <div className="bg-yellow-100 rounded-lg h-32 p-4 flex flex-col justify-between">
+          <div className="bg-yellow-100 hover:bg-yellow-200 rounded-lg h-32 p-4 flex flex-col justify-between">
             <div>
               <h3 className="text-xl">Intermediate</h3>
               <p className="text-sm mt-1">28 words</p>
@@ -81,7 +81,7 @@ export default async function Page() {
         </Link>
 
         <Link href="/home/vocabulary/advance">
-          <div className="bg-blue-100 rounded-lg h-32 p-4 flex flex-col justify-between">
+          <div className="bg-blue-100 hover:bg-blue-200 rounded-lg h-32 p-4 flex flex-col justify-between">
             <div>
               <h3 className="text-xl">Advanced</h3>
               <p className="text-sm mt-1">30 words</p>
@@ -93,7 +93,7 @@ export default async function Page() {
         </Link>
 
         <Link href="/home/vocabulary/expert">
-          <div className="bg-green-100 rounded-lg h-32 p-4 flex flex-col justify-between">
+          <div className="bg-green-100 hover:bg-green-200 rounded-lg h-32 p-4 flex flex-col justify-between">
             <div>
               <h3 className="text-xl">Expert</h3>
               <p className="text-sm mt-1">30 words</p>
