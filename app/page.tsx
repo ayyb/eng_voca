@@ -41,7 +41,7 @@ const HomePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white p-4">
+    <div className="min-h-screen bg-white">
       <div
         className="w-full max-w-md mx-auto h-screen flex flex-col p-8 
                       border border-gray-200 rounded-2xl shadow-lg"

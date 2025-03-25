@@ -6,9 +6,9 @@ export default function LikesLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-white p-4">
+    <div className="min-h-screen bg-white ">
       <div className="w-full max-w-md mx-auto min-h-screen flex flex-col 
-                    border border-gray-200 rounded-2xl shadow-lg relative bg-customBlue">
+                    border border-gray-200 shadow-lg relative bg-customBlue">
         <div className="flex-1 pt-12">
           {children}
         </div>
