@@ -30,7 +30,7 @@ export default async function Page() {
   }
   // TODO: 레벨별 단어 갯수 count 필요
   return (
-    <div className="p-4 h-full">
+    <div className="p-4 h-full pb-24">
       <UserInfo member={member} />
       <LearningProgress />
 

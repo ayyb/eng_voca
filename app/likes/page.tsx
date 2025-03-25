@@ -10,7 +10,7 @@ export default async function LikesPage() {
   const memberId = parseInt(session.user.id);
 
   return (
-    <div className="p-8">
+    <div className="p-8 pb-24">
       <BackButton />
       <LikeWordsList memberId={memberId} />
     </div>

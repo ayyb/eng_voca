@@ -4,7 +4,7 @@ import BackButton from "@/components/common/BackButton";
 
 export default function LevelsPage() {
   return (
-    <div className="p-8 flex-1 flex flex-col">
+    <div className="p-8 flex-1 flex flex-col pb-24">
       <BackButton />
 
       {/* 상단 텍스트 영역 */}

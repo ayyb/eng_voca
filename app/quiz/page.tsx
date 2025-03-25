@@ -70,9 +70,9 @@ export default function QuizPage({
       </div>
 
       {/* 메인 컨텐츠 영역 */}
-      <div className="flex-1">
+      <div className="h-[400px]">
         <p className="text-2xl mt-4 mb-8">Select a range</p>
-        <div className="flex flex-col justify-between h-[70%]">
+        <div className="flex flex-col gap-6">
           {[
             { id: 'likes', label: 'Likes' },
             { id: 'basic', label: 'Beginner' },
@@ -80,7 +80,7 @@ export default function QuizPage({
             { id: 'advance', label: 'Advanced' },
             { id: 'expert', label: 'Expert' }
           ].map(level => (
-            <div key={level.id} className="bg-white rounded-lg h-14">
+            <div key={level.id} className="bg-white rounded-lg h-14 shadow-sm hover:shadow-md transition-shadow">
               <div className="p-3 flex ml-4">
                 <p className="text-xl">{level.label}</p>
                 <div className="flex ml-auto px-4 items-center">
@@ -98,7 +98,7 @@ export default function QuizPage({
       </div>
 
       {/* 하단 영역 */}
-      <div className="flex-1 justify-end">
+      <div className="mt-24 mb-8">
         {/* Count 선택 */}
         <div className="mb-8 flex flex-col">
           <p className="text-xl font-bold mb-2">Count</p>
