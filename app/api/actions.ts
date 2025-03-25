@@ -638,3 +638,56 @@ export async function getLikesCount(): Promise<number> {
     throw new Error('Failed to fetch likes count');
   }
 }
+
+// ✅ 게스트 계정 생성
+export async function createGuestAccount() {
+  try {
+    // 랜덤한 게스트 ID 생성 (8자리)
+    const guestId = `guest_${Math.random().toString(36).substring(2, 10)}`;
+    const guestName = `게스트_${Math.random().toString(36).substring(2, 6)}`;
+    
+    // 임시 비밀번호 생성
+    const tempPassword = Math.random().toString(36).substring(2, 10);
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+    // 게스트 계정 생성
+    const result = await sql`
+      INSERT INTO users (username, password, name, created_at, member_level, is_guest)
+      VALUES (${guestId}, ${hashedPassword}, ${guestName}, NOW(), 'BRONZE', true)
+      RETURNING id, username, name;
+    `;
+
+    return {
+      success: true,
+      user: result.rows[0],
+      tempPassword // 임시 비밀번호 반환
+    };
+  } catch (error) {
+    console.error('게스트 계정 생성 중 오류:', error);
+    throw new Error('게스트 계정 생성 실패');
+  }
+}
+
+// ✅ 게스트 계정 삭제
+export async function deleteGuestAccount(userId: number) {
+  try {
+    // 게스트 계정인지 확인
+    const checkResult = await sql`
+      SELECT is_guest FROM users WHERE id = ${userId};
+    `;
+
+    if (checkResult.rows.length === 0 || !checkResult.rows[0].is_guest) {
+      throw new Error('게스트 계정이 아닙니다.');
+    }
+
+    // 게스트 계정 삭제
+    await sql`
+      DELETE FROM users WHERE id = ${userId};
+    `;
+
+    return { success: true };
+  } catch (error) {
+    console.error('게스트 계정 삭제 중 오류:', error);
+    throw new Error('게스트 계정 삭제 실패');
+  }
+}

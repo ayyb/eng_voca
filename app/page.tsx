@@ -1,11 +1,45 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import "../public/reset.css";
 import "../public/font.css";
 import "../public/main.css";
 import Link from "next/link";
 import Button from "@/components/common/Button";
+import { createGuestAccount } from "@/app/api/actions";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
-const HomePage = async () => {
+const HomePage = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
+  const handleGuestMode = async () => {
+    try {
+      setIsLoading(true);
+      
+      // 게스트 계정 생성
+      const { user, tempPassword } = await createGuestAccount();
+      
+      // 게스트 계정으로 로그인 (생성된 임시 비밀번호 사용)
+      const result = await signIn("credentials", {
+        id: user.username,
+        pw: tempPassword, // 생성된 임시 비밀번호 사용
+        redirect: false,
+      });
+
+      if (result?.error) {
+        console.error("게스트 모드 로그인 실패:", result.error);
+      } else {
+        router.push("/home");
+      }
+    } catch (error) {
+      console.error("게스트 모드 전환 중 오류:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white p-4">
       <div
@@ -26,14 +60,18 @@ const HomePage = async () => {
 
         {/* 하단 버튼 영역 */}
         <div className="space-y-6 w-full mb-12">
-          <Link href="/home" className="block" >
-            <Button variant="secondary">Start as Guest</Button>
-          </Link>
+          <Button 
+            variant="secondary" 
+            onClick={handleGuestMode}
+            disabled={isLoading}
+          >
+            {isLoading ? "처리 중..." : "Start as Guest"}
+          </Button>
 
           <Button variant="secondary">
-            <a href="/login" className="block">
+            <Link href="/login" className="block">
               Login
-            </a>
+            </Link>
           </Button>
         </div>
       </div>
