@@ -11,9 +11,10 @@ import { addLikeWord, deleteLikeWord, updateLearningProgress, fetchLearningProgr
 interface VocabularyPageProps {
   words: Word[];
   memberId: number;
+  level: string;
 }
 
-export default function VocabularyPage({ words, memberId }: VocabularyPageProps) {
+export default function VocabularyPage({ words, memberId, level }: VocabularyPageProps) {
   const [localWords, setLocalWords] = useState(words);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isKoreanHidden, setIsKoreanHidden] = useState(false);
@@ -107,9 +108,14 @@ export default function VocabularyPage({ words, memberId }: VocabularyPageProps)
     }
   };
 
-  const handleNext = async () => {
-    // 현재 단어를 "본 상태"로 표시
+  const markViewWord = async () => {
     await markCurrentWordAsViewed();
+  }
+
+  const handleNext = async () => {
+    if(level === 'today') {
+      await markViewWord();
+    }
     
     // 다음 단어로 이동
     const nextIndex = (currentIndex + 1) % localWords.length;
@@ -214,7 +220,7 @@ export default function VocabularyPage({ words, memberId }: VocabularyPageProps)
           </div>
         </div>
 
-        {/* 진행 상태 표시 */}
+        {/* 진행 상태 표시
         <div className="mt-4 mb-2">
           <div className="flex justify-between items-center mb-1">
             <span className="text-sm">학습 진행도</span>
@@ -226,7 +232,7 @@ export default function VocabularyPage({ words, memberId }: VocabularyPageProps)
               style={{ width: `${(viewedCount / localWords.length) * 100}%` }}
             ></div>
           </div>
-        </div>
+        </div> */}
 
         {/* 페이징 */}
         <div className="flex justify-between px-4 mt-4">
@@ -237,32 +243,31 @@ export default function VocabularyPage({ words, memberId }: VocabularyPageProps)
             이전
           </button>
           <div className="flex flex-col items-center justify-center">
-            <p>{currentIndex + 1}/{words.length}</p>
-            <div className="flex mt-1">
-              {localWords.map((_, index) => (
-                <div 
-                  key={index} 
-                  className={`w-2 h-2 mx-1 rounded-full ${
-                    index === currentIndex 
-                      ? 'bg-blue-500' 
-                      : viewedWords[index] 
-                        ? 'bg-green-500' 
-                        : 'bg-gray-300'
-                  }`}
-                ></div>
-              ))}
-            </div>
+            {level === 'today' ? (
+              <div className="flex mt-1">
+                {localWords.map((_, index) => (
+                  <div 
+                    key={index} 
+                    className={`w-2 h-2 mx-1 rounded-full ${
+                      index === currentIndex 
+                        ? 'bg-blue-500' 
+                        : viewedWords[index] 
+                          ? 'bg-green-500' 
+                          : 'bg-gray-300'
+                    }`}
+                  ></div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-lg font-bold">{currentIndex + 1}/{localWords.length}</p>
+            )}
           </div>
-          <button
-            className={`font-bold py-2 px-4 rounded-xl ${
-              viewedWords[currentIndex]
-                ? 'bg-gray-200 text-gray-700' // 이미 본 단어
-                : 'bg-blue-500 text-white hover:bg-blue-600' // 아직 보지 않은 단어
-            }`}
-            onClick={handleNext}
-          >
-            {viewedWords[currentIndex] ? '다음 (이미 확인)' : '다음'}
-          </button>
+            <button
+              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-xl"
+              onClick={handleNext}
+            >
+              다음
+            </button>
         </div>
       </div>
     </>

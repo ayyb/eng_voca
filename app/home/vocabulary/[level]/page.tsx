@@ -14,5 +14,5 @@ export default async function Page({ params }: { params: { level: string } }) {
   // level 파라미터 전달
   const initialWords = await fetchLevelWords(params.level);
 
-  return <VocabularyPage words={initialWords} memberId={memberId} />;
+  return <VocabularyPage words={initialWords} memberId={memberId} level={params.level} />;
 }

@@ -28,7 +28,7 @@ export default async function Page() {
   if (!member) {
     throw new Error('Member not found');
   }
-
+  // TODO: 레벨별 단어 갯수 count 필요
   return (
     <div className="p-4 h-full">
       <UserInfo member={member} />
@@ -60,7 +60,7 @@ export default async function Page() {
           <div className="bg-red-100 rounded-lg h-32 p-4 flex flex-col justify-between">
             <div>
               <h3 className="text-xl">Beginner</h3>
-              <p className="text-sm mt-1">30 words</p>
+              <p className="text-sm mt-1">28 words</p>
             </div>
             <div className="text-right">
               <p className="text-sm">Level 1</p>
@@ -72,7 +72,7 @@ export default async function Page() {
           <div className="bg-yellow-100 rounded-lg h-32 p-4 flex flex-col justify-between">
             <div>
               <h3 className="text-xl">Intermediate</h3>
-              <p className="text-sm mt-1">30 words</p>
+              <p className="text-sm mt-1">28 words</p>
             </div>
             <div className="text-right">
               <p className="text-sm">Level 2</p>

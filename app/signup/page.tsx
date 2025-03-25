@@ -6,6 +6,7 @@ import Button from "@/components/common/Button";
 import BackButton from "@/components/common/BackButton";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 type State = {
   message: string;
@@ -34,11 +35,33 @@ export default function SignUpPage() {
     const result = await createMember(prevState, formData);
     if (!result.errors.id) {  // 에러가 없으면 성공
       setShowModal(true);
+      // 회원가입 성공 시 폼 데이터 저장
+      setFormData({
+        id: formData.get('id') as string,
+        pw: formData.get('pw') as string
+      });
     }
     return result;
   };
 
   const [errorMessage, formAction] = useFormState(handleFormAction, initialState);
+
+  const [formData, setFormData] = useState<{ id: string; pw: string } | null>(null);
+
+  const handleStart = async () => {
+    if (formData) {
+      try {
+        await signIn("credentials", {
+          redirect: false,
+          id: formData.id,
+          pw: formData.pw
+        });
+        router.push('/home');
+      } catch (error) {
+        console.error('로그인 실패:', error);
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white p-4">
@@ -148,7 +171,7 @@ export default function SignUpPage() {
             </p>
             <div className="flex flex-col space-y-4">
               <button
-                onClick={() => router.push('/home')}
+                onClick={handleStart}
                 className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600"
               >
                 시작하기

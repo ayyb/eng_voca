@@ -38,18 +38,44 @@ export async function createMember(prevState: State, formData: FormData): Promis
       name: formData.get("name"),
     });
 
+    // ID 중복 체크
+    const existingUser = await sql`
+      SELECT id FROM users WHERE username = ${data.id};
+    `;
+
+    if (existingUser.rows.length > 0) {
+      return { 
+        message: "Failed to create member", 
+        errors: { id: "이미 사용 중인 ID입니다." } 
+      };
+    }
+
     // 비밀번호 해시화
     const hashedPassword = await bcrypt.hash(data.pw, 10);
 
     await sql`
-      INSERT INTO users (username, password, name, created_at, member_level)
-      VALUES (${data.id}, ${hashedPassword}, ${data.name}, NOW(), 'BRONZE');
+      INSERT INTO users (username, password, name, created_at, member_level, is_guest)
+      VALUES (${data.id}, ${hashedPassword}, ${data.name}, NOW(), 'BRONZE', false);
     `;
 
     revalidatePath("/home");
-    return { message: `Added new member`, errors: {} };
+    return { message: `회원가입이 완료되었습니다.`, errors: {} };
   } catch (error) {
-    return { message: "Failed to create member", errors: { id: "Error creating member" } };
+    console.error('회원 생성 중 오류:', error);
+    if (error instanceof z.ZodError) {
+      return { 
+        message: "Failed to create member", 
+        errors: { 
+          id: error.errors.find(e => e.path[0] === 'id')?.message,
+          password: error.errors.find(e => e.path[0] === 'pw')?.message,
+          name: error.errors.find(e => e.path[0] === 'name')?.message
+        } 
+      };
+    }
+    return { 
+      message: "Failed to create member", 
+      errors: { id: "회원가입 중 오류가 발생했습니다." } 
+    };
   }
 }
 
@@ -63,8 +89,11 @@ export async function fetchMember(): Promise<MemberInfo> {
 
     const data = await sql<MemberInfo>`
       SELECT id, username, name, 
-             TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at, member_level 
-      FROM users WHERE id = ${userId};
+             TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at, 
+             member_level,
+             is_guest
+      FROM users 
+      WHERE id = ${userId};
     `;
 
     if (data.rowCount === 0) throw new Error("Member not found");
@@ -479,16 +508,16 @@ export async function fetchLearningProgress() {
   console.log("학습 진행도 조회 - today:", today);
 
   try {
+    // 오늘 날짜의 진행도만 조회
     const data = await sql`
       SELECT current_progress, total_words, study_date 
       FROM learning_progress 
       WHERE user_id = ${userId}
-      ORDER BY study_date DESC
-      LIMIT 1;
+      AND study_date = ${today}::date;
     `;
     
     if (data.rows.length === 0) {
-      console.log("학습 진행도 없음, 초기값 반환");
+      console.log("오늘의 학습 진행도 없음, 초기값 반환");
       return { progress: 0, total: 0, date: today };
     }
     
@@ -590,12 +619,15 @@ export async function verifyCurrentPassword(currentPassword: string) {
 
     const data = await sql`
       SELECT password FROM users 
-      WHERE id = ${session.user.id} 
-      AND password = ${currentPassword};
+      WHERE id = ${session.user.id};
     `;
     
-    return { isValid: data.rows.length > 0 };
+    if (data.rows.length === 0) {
+      return { isValid: false };
+    }
 
+    const isValid = await bcrypt.compare(currentPassword, data.rows[0].password);
+    return { isValid };
   } catch (error) {
     throw new Error('비밀번호 확인 실패');
   }
@@ -607,10 +639,12 @@ export async function updatePassword(newPassword: string) {
     const session = await auth();
     if (!session?.user?.id) redirect('/login');
 
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
     await sql`
       UPDATE users 
       SET 
-        password = ${newPassword},
+        password = ${hashedPassword},
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ${session.user.id};
     `;
@@ -642,15 +676,11 @@ export async function getLikesCount(): Promise<number> {
 // ✅ 게스트 계정 생성
 export async function createGuestAccount() {
   try {
-    // 랜덤한 게스트 ID 생성 (8자리)
     const guestId = `guest_${Math.random().toString(36).substring(2, 10)}`;
     const guestName = `게스트_${Math.random().toString(36).substring(2, 6)}`;
-    
-    // 임시 비밀번호 생성
     const tempPassword = Math.random().toString(36).substring(2, 10);
     const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
-    // 게스트 계정 생성
     const result = await sql`
       INSERT INTO users (username, password, name, created_at, member_level, is_guest)
       VALUES (${guestId}, ${hashedPassword}, ${guestName}, NOW(), 'BRONZE', true)
@@ -660,7 +690,7 @@ export async function createGuestAccount() {
     return {
       success: true,
       user: result.rows[0],
-      tempPassword // 임시 비밀번호 반환
+      tempPassword
     };
   } catch (error) {
     console.error('게스트 계정 생성 중 오류:', error);

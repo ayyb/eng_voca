@@ -65,7 +65,7 @@ const HomePage = () => {
             onClick={handleGuestMode}
             disabled={isLoading}
           >
-            {isLoading ? "처리 중..." : "Start as Guest"}
+            {isLoading ? "Loading..." : "Start as Guest"}
           </Button>
 
           <Button variant="secondary">

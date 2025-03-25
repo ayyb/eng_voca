@@ -43,11 +43,9 @@ export function LearningProgress() {
   }
 
   return (
-    <>
-      {isToday ? (
         <>
           <h2 className="text mt-2">
-            오늘의 학습 진행도 {`${progress} / ${total}`}
+            Your learning Progress: {`${progress} / ${total}`}
           </h2>
           <div className="w-full bg-white rounded-xl h-6 my-4">
             <div
@@ -61,27 +59,10 @@ export function LearningProgress() {
             </div>
           )}
           {isCompleted && (
-            <div className="text-sm text-green-500 font-bold mb-2">
+            <div className="text-sm text-black-500 font-bold mb-2">
               오늘의 학습을 모두 완료했습니다! 🎉
             </div>
           )}
         </>
-      ) : (
-        <>
-          <h2 className="text mt-2">
-            마지막 학습 진행도 ({date}) {`${progress} / ${total}`}
-          </h2>
-          <div className="w-full bg-white rounded-xl h-6 my-4">
-            <div
-              className={`h-6 rounded-xl ${progress === total && total > 0 ? 'bg-green-500' : 'bg-progress'}`}
-              style={{ width: `${progressPercentage}%` }}
-            ></div>
-          </div>
-          <div className="text-sm text-yellow-400 mb-2 font-bold">
-            오늘의 학습을 시작하세요!
-          </div>
-        </>
-      )}
-    </>
   );
 } 
