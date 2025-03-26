@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { EyeIcon, HeartIcon, SpeakerWaveIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import {
   HeartIcon as EmptyHeart,
 } from "@heroicons/react/24/outline";
 import { Word } from "@/app/lib/types";
 import { addLikeWord, deleteLikeWord, updateLearningProgress, fetchLearningProgress } from "@/app/api/actions";
+import { useSpeech } from '@/app/hooks/useSpeech';
 
 interface VocabularyPageProps {
   words: Word[];
@@ -25,6 +26,8 @@ export default function VocabularyPage({ words, memberId, level }: VocabularyPag
   const [viewedCount, setViewedCount] = useState(0);
 
   const currentWord = localWords[currentIndex];
+
+  const { speak, stop, isSpeaking } = useSpeech();
 
   // 컴포넌트가 마운트될 때 학습 진행도 확인 및 설정
   useEffect(() => {
@@ -165,13 +168,33 @@ export default function VocabularyPage({ words, memberId, level }: VocabularyPag
     markCurrentWordAsViewed();
   };
 
-  // 발음 듣기
-  const playPronunciation = () => {
-    // 실제 발음 재생 코드는 여기에 구현
-    console.log('발음 재생:', currentWord.word);
-    // 발음을 듣는 것은 단어를 확인한 것으로 간주
+  // 단어 발음 재생
+  const playWordPronunciation = useCallback(() => {
+    if (isSpeaking()) {
+      stop();
+    } else {
+      speak(currentWord.word, {
+        lang: 'en-US',
+        rate: 0.8, // 단어는 조금 천천히
+        pitch: 1
+      });
+    }
     markCurrentWordAsViewed();
-  };
+  }, [currentWord.word, speak, stop, isSpeaking, markCurrentWordAsViewed]);
+
+  // 예문 발음 재생
+  const playExamplePronunciation = useCallback(() => {
+    if (isSpeaking()) {
+      stop();
+    } else {
+      speak(currentWord.example, {
+        lang: 'en-US',
+        rate: 0.9,
+        pitch: 1
+      });
+    }
+    markCurrentWordAsViewed();
+  }, [currentWord.example, speak, stop, isSpeaking, markCurrentWordAsViewed]);
 
   return (
     <>
@@ -191,9 +214,15 @@ export default function VocabularyPage({ words, memberId, level }: VocabularyPag
               <EyeIcon className="h-6 w-6 " />
             )}
           </button>
-          <p onClick={playPronunciation} className="cursor-pointer">
-            <SpeakerWaveIcon className="size-6 text-black-500" />
-          </p>
+          <button 
+            onClick={playWordPronunciation}
+            className="cursor-pointer p-2 hover:bg-gray-100 rounded-full"
+            aria-label="단어 발음 듣기"
+          >
+            <SpeakerWaveIcon 
+              className={`size-6 ${isSpeaking() ? 'text-blue-500' : 'text-black-500'}`} 
+            />
+          </button>
         </div>
 
         {/* 영어단어 */}
@@ -214,9 +243,15 @@ export default function VocabularyPage({ words, memberId, level }: VocabularyPag
               )}
               <p>{currentWord.translation}</p>
             </div>
-            <p onClick={playPronunciation} className="flex justify-center items-center cursor-pointer">
-              <SpeakerWaveIcon className="size-6 text-black-500" />
-            </p>
+            <button 
+              onClick={playExamplePronunciation}
+              className="cursor-pointer p-2 hover:bg-gray-100 rounded-full"
+              aria-label="예문 발음 듣기"
+            >
+              <SpeakerWaveIcon 
+                className={`size-6 ${isSpeaking() ? 'text-blue-500' : 'text-black-500'}`} 
+              />
+            </button>
           </div>
         </div>
 
