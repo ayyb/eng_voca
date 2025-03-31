@@ -319,11 +319,11 @@ export async function authenticate(
       switch (error.type) {
         case "CredentialsSignin":
           return {
-            message: "로그인에 실패했습니다",
+            message: "로그인에 실패했습니다. 아이디 또는 패스워드를 확인해주세요.",
             errors: {
-              id: "존재하지 않는 아이디입니다",
-              password: "비밀번호가 틀립니다"
-            }
+              id: "",
+              password: ""
+            } 
           };
         default:
           return {
