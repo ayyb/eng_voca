@@ -1,10 +1,9 @@
 "use client";
-import { updatePassword, verifyCurrentPassword } from "@/app/api/actions";
+import { updatePassword, verifyCurrentPassword, handleSignOut } from "@/app/api/actions";
 import { useState } from "react";
 import { MemberInfo } from "@/app/lib/definitions";
 import Button from "@/components/common/Button";
 import { useRouter } from "next/navigation";
-import { signOut } from "@/auth";
 
 const MemberDetail = () => {
   const [isHidden, setIsHidden] = useState(true);
@@ -77,8 +76,8 @@ const MemberDetail = () => {
 
   const handleLogout = async () => {
     try {
-      await signOut();
-      router.push("/");
+      await handleSignOut();
+      router.push('/');
     } catch (error) {
       console.error("Logout failed:", error);
     }

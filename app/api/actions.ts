@@ -721,3 +721,14 @@ export async function deleteGuestAccount(userId: number) {
     throw new Error('게스트 계정 삭제 실패');
   }
 }
+
+// ✅ 로그아웃 처리
+export async function handleSignOut() {
+  try {
+    await signOut({ redirect: false }); // ✅ 리디렉션 차단
+    return { success: true };
+  } catch (error) {
+    console.error('로그아웃 중 오류 발생:', error);
+    throw new Error('로그아웃 실패');
+  }
+}
