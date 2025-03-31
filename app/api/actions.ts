@@ -644,8 +644,7 @@ export async function updatePassword(newPassword: string) {
     await sql`
       UPDATE users 
       SET 
-        password = ${hashedPassword},
-        updated_at = CURRENT_TIMESTAMP
+        password = ${hashedPassword}
       WHERE id = ${session.user.id};
     `;
     

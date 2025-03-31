@@ -39,7 +39,17 @@ const MemberDetail = () => {
     setPasswordMatch(e.target.value === password);
   };
 
-  const changePassword = async () => {
+  const handlePasswordSubmit = async () => {
+    if (!currentPassword) {
+      alert("현재 비밀번호를 입력해주세요.");
+      return;
+    }
+
+    if (!password || !confirmPassword) {
+      alert("새 비밀번호를 입력해주세요.");
+      return;
+    }
+
     if (!passwordMatch) {
       alert("새 비밀번호가 일치하지 않습니다.");
       return;
@@ -58,18 +68,18 @@ const MemberDetail = () => {
       // 비밀번호 변경
       const { message } = await updatePassword(password);
       if (message === "success") {
-        alert("비밀번호가 변경되었습니다.");
-        setIsHidden(true);
+        alert("비밀번호가 성공적으로 변경되었습니다.");
         // 모든 상태 초기화
         setPassword("");
         setConfirmPassword("");
         setCurrentPassword("");
         setCurrentPasswordError(false);
+        setIsEditing(false);  // 편집 모드 종료
       } else {
         alert("비밀번호 변경에 실패했습니다.");
       }
     } catch (error) {
-      alert("오류가 발생했습니다.");
+      alert("비밀번호 변경 중 오류가 발생했습니다.");
       console.error(error);
     }
   };
@@ -138,9 +148,22 @@ const MemberDetail = () => {
             )}
           </div>
 
-          <div className="mt-8">
-            <Button onClick={() => setIsEditing(false)} variant="confirm">
-              OK
+          <div className="mt-8 space-y-4">
+            <Button onClick={handlePasswordSubmit} variant="confirm">
+              Change Password
+            </Button>
+            <Button 
+              onClick={() => {
+                setIsEditing(false);
+                // 폼 초기화
+                setPassword("");
+                setConfirmPassword("");
+                setCurrentPassword("");
+                setCurrentPasswordError(false);
+              }} 
+              variant="secondary"
+            >
+              Cancel
             </Button>
           </div>
         </div>
@@ -150,7 +173,7 @@ const MemberDetail = () => {
             Change Password
           </Button>
 
-          <Button variant="confirm" onClick={handleLogout}>
+          <Button variant="secondary" onClick={handleLogout}>
             Logout
           </Button>
         </div>
